@@ -1,0 +1,24 @@
+.home-section{
+  flex-grow: 1;
+
+  .left-section{
+
+    padding: 3rem !important;
+
+    h1{
+      font-size: 90px;
+      font-weight: bold;
+    }
+
+    .description{
+      font-size: 24px;
+    }
+
+    .call-to-action{
+      padding-top: 50px;
+    }
+
+  }
+
+
+}

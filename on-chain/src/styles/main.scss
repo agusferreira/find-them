@@ -1,0 +1,61 @@
+@import "./variables.scss";
+
+/* General */
+body{
+  padding: 0;
+  margin: 0;
+  font-family: Helvetica, Verdana, serif;
+  overflow-x: hidden;
+}
+
+.w100{width: 100%;}
+
+
+.boot-container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+
+  @media (min-width: 768px) {
+    width: 750px;
+  }
+
+  @media (min-width: 992px) {
+    width: 970px;
+  }
+
+  @media (min-width: 1200px) {
+    width: 1170px;
+  }
+}
+
+/* Helpers */
+.text-center{text-align: center;}
+.text-left{text-align: left;}
+.text-right{text-align: right;}
+
+/* Modals */
+
+.modal-subtitle{
+  color: $grey2;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.modal-image{
+  text-align: center;
+}
+
+.modal-action-buttons{
+  justify-content: center !important;
+
+  a{
+    text-decoration: none;
+  }
+
+}
+
+.modal-input{
+  width: 100%;
+}

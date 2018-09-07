@@ -1,8 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+
+import { DrizzleProvider } from 'drizzle-react';
+
+import { store } from './store';
+import drizzleOptions from './drizzleOptions';
+
+import App from './containers/App';
+import './styles/main.scss';
+
 import registerServiceWorker from './registerServiceWorker';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render((
+    <DrizzleProvider options={drizzleOptions} store={store}>
+        <App />
+    </DrizzleProvider>
+), document.getElementById('root'));
 registerServiceWorker();
