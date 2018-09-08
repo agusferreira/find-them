@@ -43,7 +43,7 @@ class ButtonModal extends Component {
         return (
             <div className={"donate-section text-right"}>
                 <Button className={"blue-full"} onClick={this._showModal}>{this.props.buttonTitle}</Button>
-                <Modal show={showModal} onHide={this._closeModal}>
+                <Modal show={showModal} onHide={this._closeModal} className={'vertical-center'}>
                     <Modal.Header closeButton>
                         <Modal.Title id={"modalTitle"}>{modalTitle}</Modal.Title>
                     </Modal.Header>

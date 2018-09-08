@@ -20,21 +20,47 @@ body{
 }
 
 /* Modals */
-.modal-subtitle{
-  color: $grey2;
-  font-size: 14px;
-  font-style: italic;
+.modal{
+
+  &.vertical-center{
+    display: -webkit-flex !important;
+    display: -ms-flexbox !important;
+    display: flex !important;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+  }
 }
 
-.modal-image{
+.modal-title{
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 22px;
+  font-weight: bold;
   text-align: center;
+  color: $blue;
 }
 
-.modal-action-buttons{
-  justify-content: center !important;
+.modal-content{
+  font-size: 18px;
+  color:$grey3;
+  border-radius: 0;
+  box-shadow: none;
 
-  a{
-    text-decoration: none;
+}
+
+.modal-body{
+  padding:20px;
+
+
+  .modal-buttons{
+    padding: 15px;
+    text-align: center;
+
+    button{
+      margin: 0 5px;
+    }
+
   }
 
 }
