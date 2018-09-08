@@ -8,7 +8,8 @@ import './style.scss';
 import BasicDetails from "./components/basicDetails/BasicDetails";
 import Tips from "./components/tips/Tips";
 import ButtonModal from "./components/buttonModal/ButtonModal";
-import RequestContract from '../../../build/contracts/FindRequest.json';
+import LocationForm from "./components/locationForm/LocationForm";
+import RequestContract from '../../contracts/FindRequest.json';
 
 const requestABI = RequestContract["abi"];
 
@@ -37,7 +38,7 @@ class Details extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps){
+    UNSAFE_componentWillReceiveProps(nextProps){
         if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
             this._fetchSummary();
         }
@@ -118,6 +119,7 @@ class Details extends Component {
                         </Col>
                     </Row>
                 </Grid>
+                <LocationForm address={this.state.address}/>
             </div>
         )
 

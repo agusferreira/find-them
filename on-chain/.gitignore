@@ -23,3 +23,5 @@ package-lock.json
 #build/
 .idea/
 dapp/
+
+src/contracts/

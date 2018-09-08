@@ -48,12 +48,6 @@ class RequestForm extends Component{
         this._getLocation();
     }
 
-    componentDidUpdate(){
-        // let hiddenInputElement = document.getElementById("last-seen-datepicker");
-        // console.log(hiddenInputElement.value); // ISO String, ex: "2016-11-19T12:00:00.000Z"
-        // console.log(hiddenInputElement.getAttribute('data-formattedvalue')) // Formatted String, ex: "11/19/2016"
-    }
-
     _getLocation = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((position) => {
@@ -167,6 +161,7 @@ class RequestForm extends Component{
     };
 
     _mapRender = (props) => {
+        console.log('Map Render');
         let _self = this;
 
         let {myLatLng, lastSeenLocation} = props;
