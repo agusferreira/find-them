@@ -1,0 +1,36 @@
+@import '../../../../styles/variables.scss';
+
+.details-basics-section{
+  flex-grow: 1;
+
+  .left-section{
+
+    padding: 3rem !important;
+
+  }
+
+  .data{
+    & p{
+      color:$grey3;
+      font-size:18px;
+    }
+
+  }
+
+  .avatar-icon{
+    height: 150px;
+    width: 150px;
+    border-radius: 50px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+
+  .username{
+    color:$blue;
+    font-size: 31px;
+    font-weight: 600;
+    letter-spacing: -0.04px;
+    line-height: 41px;
+  }
+
+}

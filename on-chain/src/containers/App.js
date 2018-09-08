@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import Home from './../containers/home/Home';
 import Details from './../containers/details/Details';
+import PageNotFound from "../components/errorPages/PageNotFound";
 
 class App extends Component {
 
@@ -25,6 +26,7 @@ class App extends Component {
                 <Switch>
                     <Route exact path="/" component={Home} />
                     <Route exact path="/detail/:address" component={Details} />
+                    <Route path="*" component={PageNotFound} />
                 </Switch>
             </Router>
         );
