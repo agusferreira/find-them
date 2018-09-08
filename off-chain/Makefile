@@ -46,8 +46,8 @@ restart: clean build up ps
 	@echo "Restarted all containers"
 
 reboot-db:
-	docker exec bb-postgres /bin/sh -c "dropdb -U postgres postgres"
-	docker exec bb-postgres /bin/sh -c "createdb -U postgres postgres"
+	docker exec ft-postgres /bin/sh -c "dropdb -U postgres postgres"
+	docker exec ft-postgres /bin/sh -c "createdb -U postgres postgres"
 
 
 ##############
@@ -61,7 +61,7 @@ shell-web:
 	docker exec -ti $(WEB) bash
 
 shell-db:
-	docker exec -ti bb-postgres bash
+	docker exec -ti ft-postgres bash
 
 
 ######
@@ -78,7 +78,7 @@ log-web-live:
 	docker logs --tail 50 --follow --timestamps $(WEB)
 
 log-db:
-	docker-compose logs bb-postgres
+	docker-compose logs ft-postgres
 
 
 ############
