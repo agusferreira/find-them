@@ -14,23 +14,21 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract FindRequestFactory is Ownable, Migratable {
     address[] private deployedFindRequest;
-    uint private findRequestCount;
 
     event newFindRequestCreated(address newAddress);
 
     function initialize() public isInitializer("FindRequestFactory", "0")  {
-      findRequestCount = 0;
+        // Init some variables here
     }
 
-    function createFindRequest(uint8 _age, string _location, string _lost_date, string _description) public payable {
+    function createFindRequest(uint8 _age, string _location, string _lostDate, string _description) public payable {
         // TODO > put some requirements for de parameters
 
         // Create new Find Request contract and get deployed address
-        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lost_date, _description);
+        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lostDate, _description);
 
         // Save new contract address and increment total counter
         deployedFindRequest.push(newFindRequest);
-        findRequestCount = deployedFindRequest.length;
 
         // Transfer the created contract the initial amount
         newFindRequest.transfer(msg.value);
@@ -41,7 +39,7 @@ contract FindRequestFactory is Ownable, Migratable {
 
 
     function getFindRequest(uint findRequestNumber) public view returns (address) {
-        require(findRequestCount > findRequestNumber);
+        require(deployedFindRequest.length > findRequestNumber);
         return deployedFindRequest[findRequestNumber];
     }
 
@@ -50,7 +48,7 @@ contract FindRequestFactory is Ownable, Migratable {
         return (
           owner,
           this.balance,
-          findRequestCount
+          deployedFindRequest.length
         );
     }
 
@@ -68,25 +66,45 @@ contract FindRequestFactory is Ownable, Migratable {
 
 contract FindRequest is Ownable {
     uint8 private age;
-    string private location;
-    string private lost_date;
+    string private lostLocation;
+    string private lostDate;
     string private description;
     address private curator;
     uint private initialIncentive;
+    string private state;
 
     string[] private knownLocations;
-    string[] private receivedHints;
+    hint[] private receivedHints;
 
+    struct hint {
+        string text;
+        string state;
+        // TODO Maybe add here a posible location parameters
+    }
 
     // FindRequest constructor
-    constructor (address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
+    constructor(address _owner, uint8 _age, string _location, string _lostDate, string _description) public payable {
         owner = _owner;
         age = _age;
-        location = _location;
-        lost_date = _lost_date;
+        lostLocation = _location;
+        lostDate = _lostDate;
         description = _description;
         curator = msg.sender;
         initialIncentive = msg.value;
+        state = 'OPEN';
+        // Posible states: OPEN, REDEMING_INCENTIVES, REDEMING_BALANCE, CLOSE
+    }
+
+    modifier onlyHinter() {
+        _;
+    }
+
+    modifier onlyCurator() {
+        _;
+    }
+
+    function getCurrentState() public view returns(string) {
+        return state;
     }
 
     // Return a summary tuple of relevant variables of the factory contract
@@ -95,8 +113,8 @@ contract FindRequest is Ownable {
           owner,
           this.balance,
           age,
-          location,
-          lost_date,
+          lostLocation,
+          lostDate,
           description
         );
     }
@@ -105,9 +123,62 @@ contract FindRequest is Ownable {
       return curator;
     }
 
+    function addKnownLocation(string location) public payable {
+
+    }
+
     function getKnownLocations(uint knownLocationNumber) public view returns(string) {
         require(knownLocations.length > knownLocationNumber);
         return knownLocations[knownLocationNumber];
     }
 
+    function submitHint(string text) public payable {
+
+    }
+
+    function acceptHint(uint hintNumber) public view onlyOwner returns(bool) {
+
+    }
+
+    function rejecttHint(uint hintNumber) public view onlyOwner returns(bool) {
+
+    }
+
+    function closeFinding(string finalText) public payable onlyOwner {
+
+    }
+
+    function redeemIncentive() public payable onlyHinter {
+
+    }
+
+    function rejectIncentive() public payable onlyHinter {
+
+    }
+
+    function redeemBalance() public payable onlyOwner {
+
+    }
+
+    function rejectBalance() public payable onlyOwner {
+
+    }
+
+    function cancelFindRequest() public payable onlyCurator {
+
+    }
+
+    // Default function to withdraw balance from factory contract
+    // function withdraw(uint amount) public onlyOwner returns(bool) {
+    //     require(amount <= address(this).balance);
+    //     owner.transfer(amount);
+    //     return true;
+    // }
+
+    function receiveDonations() public payable {
+    }
+
+    // Default anonymous function allow deposits to the contract
+    function () public payable {
+    }
 }
