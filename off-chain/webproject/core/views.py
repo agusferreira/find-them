@@ -29,8 +29,7 @@ class RequestForFindViewSet(APIView):
         serializer.is_valid(raise_exception=True)
         request_for_find = serializer.save()
 
-        #run_async(
-        contract_service.validate_contract(int(index), request_for_find)#)
+        run_async(contract_service.validate_contract, int(index), request_for_find)
 
         return Response(serializer.data)
 
