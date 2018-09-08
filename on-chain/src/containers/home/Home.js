@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { drizzleConnect } from 'drizzle-react';
 
 import axios from 'axios';
 import {Grid, Row, Col} from 'react-bootstrap';
@@ -7,6 +6,7 @@ import {Grid, Row, Col} from 'react-bootstrap';
 import Card from "../../components/card/Card";
 import Header from "../../components/header/Header";
 import RequestForm from "./components/RequestForm";
+import urls from "../../utils/urls";
 import './styles.scss';
 
 class Home extends Component {
@@ -25,7 +25,7 @@ class Home extends Component {
     }
 
     _fetchRequests = () => {
-        let URL = "https://www.mocky.io/v2/5b93873633000052002061e3";
+        let URL = `${urls.API_ROOT}/api/v1/requests/`;
         axios.get(URL)
             .then(response => {
                this.setState({requests: response.data});
@@ -34,9 +34,7 @@ class Home extends Component {
 
 
     render() {
-
         let {requests} = this.state;
-        console.log(this.props);
 
         return (
             <div>
@@ -45,12 +43,16 @@ class Home extends Component {
                 <Grid>
                     <Row>
                         {requests && requests.map((request, index) => {
+                            let name = '';
+                            if(request.first_name) name = `${request.first_name} `;
+                            if(request.last_name) name = `${name} ${request.last_name}`;
+
                             return (
                                 <Col xs={3} key={index}>
-                                    <Card key={index} name={request.name} image={request.image}
-                                          action={() => this.props.history.push(`detail/${request.contract}/`)}
-                                          lastSeenLocation={request.lastSeenLocation}
-                                          lastSeenDate={request.lastSeenDate} />
+                                    <Card key={index} name={name} image={`${urls.API_ROOT}${request.photo}`}
+                                          action={() => this.props.history.push(`detail/${request.contract_deployed_address}/`)}
+                                          lastSeenLocation={'LOCATION'}
+                                          lastSeenDate={request.lost_date} />
                                 </Col>
                             );
                         })}
@@ -62,12 +64,5 @@ class Home extends Component {
     }
 
 }
-const mapStateToProps = state => {
-    return {
-        drizzleStatus: state.drizzleStatus,
-        FindRequestFactory: state.contracts.FindRequestFactory
-    }
-}
 
-const HomeContainer = drizzleConnect(Home, mapStateToProps);
-export default HomeContainer;
+export default Home;

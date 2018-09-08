@@ -22,6 +22,10 @@ class BasicDetails extends Component {
 
     };
 
+    _closeSearch = () => {
+
+    };
+
     _mapRender = (props) => {
         // let _self = this;
         //
@@ -55,6 +59,10 @@ class BasicDetails extends Component {
                             <h2 className={"username"}>{this.props.name}</h2>
                         </Col>
                         <Col xs={12} md={6} className={"button-container text-right"}>
+                            <ButtonModal username={this.props.name} buttonTitle={"Close Search"} className={'aqua-full'} action={this._closeSearch}
+                                         textContent={`Are you sure you want to close the search of ${this.props.name}?`}
+                                         title={"Close Search"}
+                                         acceptButtonText={"Close"}/>
                             <ButtonModal username={this.props.name} buttonTitle={"Give a Hint"} type={"textarea"} action={this._sendHint}
                                           placeholder={"Hint"} textContent={`Do you have any information about ${this.props.name}?
                                          Please give us all the information you can in order to help us find him.

@@ -1,6 +1,6 @@
 @import '../../styles/variables.scss';
 
-.button{
+.button {
   padding: 11px 35px;
   background-color: transparent;
   font-size: 16px;
@@ -9,12 +9,11 @@
   box-shadow: none;
   border-radius: 23px;
 
-
-  &.blue{
+  &.blue {
     color: $blue;
     border: 1px solid $blue;
 
-    &:hover{
+    &:hover {
       color: $white;
       background: $blue;
     }
@@ -32,7 +31,18 @@
       background: $background;
     }
 
+  }
 
+  &.aqua-full {
+    color: $white;
+    border-color: $aqua;
+    background: $aqua;
+
+    &:hover {
+      color: $aqua;
+      border-color: $aqua;
+      background: $background;
+    }
 
   }
 

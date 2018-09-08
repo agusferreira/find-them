@@ -32,12 +32,12 @@ class ButtonModal extends Component {
 
     render() {
         let {showModal, donation_amount, ajaxInProgress }= this.state;
-        let modalTitle = `Contribute to ${this.props.username}'s cause`;
+        let modalTitle = this.props.title? this.props.title:`Contribute to ${this.props.username}'s cause`;
         let buttonsDisabled = ajaxInProgress;
-
+        let className = this.props.className? this.props.className: 'blue-full';
         return (
             <div className={"donate-section"}>
-                <Button className={"blue-full"} onClick={this._showModal}>{this.props.buttonTitle}</Button>
+                <Button className={className} onClick={this._showModal}>{this.props.buttonTitle}</Button>
                 <Modal show={showModal} onHide={this._closeModal} className={'vertical-center'}>
                     <Modal.Header closeButton>
                         <Modal.Title id={"modalTitle"}>{modalTitle}</Modal.Title>
@@ -49,6 +49,7 @@ class ButtonModal extends Component {
                                     <p>{this.props.textContent}</p>
                                 </Col>
                             </Row>
+                            {this.props.placeholder && this.props.type &&
                             <Row>
                                 <Col xs={6}>
                                     <FormGroup>
@@ -62,7 +63,7 @@ class ButtonModal extends Component {
                                         />
                                     </FormGroup>
                                 </Col>
-                            </Row>
+                            </Row>}
                             <Row className={"modal-buttons"}>
                                 <Col xs={6}>
                                 <Button className={`blue ${buttonsDisabled ? 'disabled' : ''}`}
@@ -71,7 +72,7 @@ class ButtonModal extends Component {
                                 </Button>
                                 <Button className={`blue-full ${buttonsDisabled ? 'disabled' : ''}`}
                                         onClick={this.props.action}>
-                                    Send
+                                    {this.props.acceptButtonText? this.props.acceptButtonText :'Send'}
                                 </Button>
                                 </Col>
                             </Row>

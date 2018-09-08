@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
+import { drizzleConnect } from 'drizzle-react';
 
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import {GoogleMap, Marker} from 'react-google-maps';
 import {
     Grid, Row, Col, Modal, FormGroup,
@@ -10,20 +13,21 @@ import Datepicker from 'react-16-bootstrap-date-picker';
 
 import {BasicGoogleMap} from "../../../components/map/Map";
 import Button from "../../../components/button/Button";
+import urls from "../../../utils/urls";
 
 class RequestForm extends Component{
 
-    constructor(props){
+    constructor(props, context){
         super(props);
 
         this.state = {
             ajaxInProgress: false,
             show: false,
 
-            name: '',
-            surname: '',
-            id: '',
-            picture: '',
+            first_name: '',
+            last_name: '',
+            identifier: '',
+            photo: '',
             email: '',
             description: '',
             age: '',
@@ -35,7 +39,7 @@ class RequestForm extends Component{
             incentive: '',
 
             myLatLng: false
-        }
+        };
 
     }
 
@@ -63,7 +67,7 @@ class RequestForm extends Component{
         }
     };
 
-    _handleDateChange = (value, formattedValue) => {
+    _handleDateChange = (value) => {
         this.setState({
             lastSeenDate: value
         });
@@ -81,12 +85,79 @@ class RequestForm extends Component{
         this.setState({show: false});
     };
 
-    _submitForm = (ev) => {
+    _submitForm = async (ev) => {
         ev.preventDefault();
-        console.log('Submitted');
 
         // TO DO
+        let {
+            first_name, last_name, identifier, photo, email, description, age,
+            lastSeenLocation, lastSeenDate, incentive
+        } = this.state;
 
+
+        let {drizzle} = this.context;
+        let state = drizzle.store.getState();
+        let {drizzleStatus} = this.props;
+        const accounts = await drizzle.web3.eth.getAccounts();
+
+        let location = `${lastSeenLocation.lat},${lastSeenLocation.lng}`;
+        let lastDate = `${lastSeenDate}`;
+
+        // TODO - MOVE
+
+        const formData = new FormData();
+        formData.append('photo', photo);
+        formData.set('first_name', first_name);
+        formData.set('last_name', last_name);
+        formData.set('identifier', identifier);
+        formData.set('creator_email', email);
+        formData.set('lost_date', lastDate);
+        formData.set('location', location);
+        formData.set('description', description);
+        formData.set('creator_address', accounts[0]);
+        formData.set('contract_deployed_address', accounts[0]);
+        formData.set('finished', false);
+        this._postToOffChain(formData);
+        return false;
+
+        if (drizzleStatus.initialized) {
+            const stackId = await drizzle.contracts.FindRequestFactory.methods.createFindRequest(
+                    age,
+                    location,
+                    lastDate,
+                    description
+                ).send({
+                    from: accounts[0],
+                    value: drizzle.web3.utils.toWei(incentive.toString(), "ether")
+                });
+
+            console.log(stackId);
+            if(stackId.status){
+                // this.setState({button_disabled:false});
+                // TODO - Post result to server
+                // this.postData();
+            }
+
+            //Use the dataKey to display the transaction status.
+            if (state.transactionStack[stackId]) {
+                const txHash = state.transactionStack[stackId];
+                console.log('TxHash: ', state.transactions[txHash].status);
+            //     return state.transactions[txHash].status
+            }
+
+        }
+
+    };
+
+    _postToOffChain = (form) => {
+        const URL = `${urls.API_ROOT}/api/v1/requests/`;
+        axios.post(URL, form, {'Content-Type': 'multipart/form-data'})
+            .then(response => {
+
+            })
+            .catch(e => {
+                console.log(e);
+            });
     };
 
     _mapRender = (props) => {
@@ -121,8 +192,7 @@ class RequestForm extends Component{
     };
 
     render(){
-
-        let {name, surname, id, email, description, age,
+        let {first_name, last_name, identifier, email, description, age,
             incentive, lastSeenDate, lastSeenLocation,
             myLatLng, ajaxInProgress
         } = this.state;
@@ -154,23 +224,23 @@ class RequestForm extends Component{
                                 <Row>
                                     <Col xs={12} sm={6}>
                                         <FormGroup>
-                                            <ControlLabel>Name</ControlLabel>
+                                            <ControlLabel>First Name</ControlLabel>
                                             <FormControl
                                                 type="text"
-                                                value={name}
-                                                placeholder="Enter the name"
-                                                onChange={ev => this._handleInput('name', ev.target.value)}
+                                                value={first_name}
+                                                placeholder="Enter the first name"
+                                                onChange={ev => this._handleInput('first_name', ev.target.value)}
                                             />
                                         </FormGroup>
                                     </Col>
                                     <Col xs={12} sm={6}>
                                         <FormGroup>
-                                            <ControlLabel>Surname</ControlLabel>
+                                            <ControlLabel>Last Name</ControlLabel>
                                             <FormControl
                                                 type="text"
-                                                value={surname}
-                                                placeholder="Enter the surname"
-                                                onChange={ev => this._handleInput('surname', ev.target.value)}
+                                                value={last_name}
+                                                placeholder="Enter the last name"
+                                                onChange={ev => this._handleInput('last_name', ev.target.value)}
                                             />
                                         </FormGroup>
                                     </Col>
@@ -181,9 +251,9 @@ class RequestForm extends Component{
                                             <ControlLabel>Legal ID</ControlLabel>
                                             <FormControl
                                                 type="text"
-                                                value={id}
-                                                placeholder="Enter the legal document id"
-                                                onChange={ev => this._handleInput('id', ev.target.value)}
+                                                value={identifier}
+                                                placeholder="Enter the legal document identifier"
+                                                onChange={ev => this._handleInput('identifier', ev.target.value)}
                                             />
                                         </FormGroup>
                                     </Col>
@@ -218,10 +288,10 @@ class RequestForm extends Component{
                                             <ControlLabel>Picture</ControlLabel>
                                             <FormControl
                                                 type="file"
-                                                onChange={(ev) => this.setState({picture: ev.target.files[0]})}
+                                                onChange={(ev) => this.setState({photo: ev.target.files[0]})}
                                                 accept={"image/*"}
                                             />
-                                            <HelpBlock>Please upload a picture as updated as possible</HelpBlock>
+                                            <HelpBlock>Please upload a photo as updated as possible</HelpBlock>
                                         </FormGroup>
                                     </Col>
                                     <Col xs={12} sm={6}>
@@ -292,4 +362,17 @@ class RequestForm extends Component{
 
 }
 
-export default RequestForm;
+RequestForm.contextTypes = {
+    drizzle: PropTypes.object
+};
+
+const mapStateToProps = state => {
+    return {
+        web3: state.web3,
+        drizzleStatus: state.drizzleStatus,
+        FindRequestFactory: state.contracts.FindRequestFactory
+    }
+};
+
+const RequestFormContainer = drizzleConnect(RequestForm, mapStateToProps);
+export default RequestFormContainer;
