@@ -94,11 +94,28 @@ class Details extends Component {
         this.setState({hints});
     };
 
-    _rejectHint = (id) => {
+    _rejectHint = async (id) => {
+        console.log(id);
+        let {drizzle} = this.context;
+        let {findRequest} = this.state;
+        const accounts = await drizzle.web3.eth.getAccounts();
 
+        const stackId = await findRequest.methods.rejectHint(id)
+            .send({
+                from: accounts[0]
+            });
     };
 
-    _acceptHint = (id) => {
+    _acceptHint = async (id) => {
+        console.log(id);
+        let {drizzle} = this.context;
+        let {findRequest} = this.state;
+        const accounts = await drizzle.web3.eth.getAccounts();
+
+        const stackId = await findRequest.methods.acceptHint(id)
+            .send({
+                from: accounts[0]
+            });
     };
 
     _sendHint = async (text) => {
@@ -150,8 +167,8 @@ class Details extends Component {
     };
 
     _renderHints = () => {
-        return this.state.hints.map((hint) => {
-            return <Tips key={hint[0]} type={hint[1]} hint={hint[0]}
+        return this.state.hints.map((hint, index) => {
+            return <Tips key={index} type={hint[1]} hint={hint[0]} id={index}
                          editable={true} acceptAction={this._acceptHint} rejectAction={this._rejectHint}/>
         })
     };

@@ -82,7 +82,10 @@ class Tips extends Component {
                                         Cancel
                                     </Button>
                                     <Button className={`blue-full ${buttonsDisabled ? 'disabled' : ''}`}
-                                            onClick={this.props.action}>
+                                            onClick={() => {
+                                                this.state.action === "accept" ? this.props.acceptAction(this.props.id) : this.props.rejectAction(this.props.id);
+                                                this._closeModal();
+                                            }}>
                                         {action.toUpperCase()}
                                     </Button>
                                 </Col>
