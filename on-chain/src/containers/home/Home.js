@@ -26,7 +26,7 @@ class Home extends Component {
         this._fetchRequests();
     }
 
-    componentWillReceiveProps(nextProps){
+    UNSAFE_componentWillReceiveProps(nextProps){
         if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
             this._fetchSummary();
         }

@@ -9,7 +9,8 @@ import './style.scss';
 import BasicDetails from "./components/basicDetails/BasicDetails";
 import Tips from "./components/tips/Tips";
 import ButtonModal from "./components/buttonModal/ButtonModal";
-import RequestContract from '../../../build/contracts/FindRequest.json';
+import LocationForm from "./components/locationForm/LocationForm";
+import RequestContract from '../../contracts/FindRequest.json';
 import urls from '../../utils/urls';
 import {dateFormat} from "../../utils/formatters";
 
@@ -46,8 +47,8 @@ class Details extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized) {
+    UNSAFE_componentWillReceiveProps(nextProps){
+        if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
             let {drizzle} = this.context;
             let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
             this.setState({findRequest}, this._fetchSummary);
@@ -198,6 +199,7 @@ class Details extends Component {
                         </Col>
                     </Row>
                 </Grid>
+                <LocationForm address={this.state.address}/>
             </div>
         )
 

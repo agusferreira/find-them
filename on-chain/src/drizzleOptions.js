@@ -1,4 +1,4 @@
-import FindRequestFactory from '../build/contracts/FindRequestFactory';
+import FindRequestFactory from './contracts/FindRequestFactory.json';
 
 const drizzleOptions = {
     web3: {

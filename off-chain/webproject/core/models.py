@@ -1,4 +1,5 @@
 from django.db import models
+from solo.models import SingletonModel
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -39,3 +40,11 @@ class HintNotification(models.Model):
     find_request = models.ForeignKey(RequestForFind, on_delete=models.PROTECT)
     notified = models.BooleanField(default=False)
     index_in_contract = models.PositiveIntegerField()
+
+
+class SystemSettings(SingletonModel):
+    class Meta:
+        verbose_name = _('system settings')
+        verbose_name_plural = _('system settings')
+
+    factory_address = models.CharField(max_length=1024)

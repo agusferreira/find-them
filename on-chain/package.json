@@ -66,8 +66,9 @@
     "prop-types": "latest"
   },
   "scripts": {
-    "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
+    "start": "node preinstall.js && node scripts/start.js",
+    "build": "node preinstall.js && node scripts/build.js",
+    "deploy": "npm run build && firebase deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
