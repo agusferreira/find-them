@@ -1,0 +1,17 @@
+@import '../../styles/variables';
+
+.app-header {
+
+  background: $white;
+  border-width: 0;
+  box-shadow: 0px 5px 5px 0px $grey0;
+
+  &.navbar{
+    height: 70px;
+  }
+
+  img{
+    height: 35px;
+  }
+
+}
