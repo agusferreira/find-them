@@ -13,6 +13,7 @@ class HintNotificationSerializer(serializers.ModelSerializer):
             setattr(_hn, key, validated_data[key])
 
         _hn.save()
+
         return _hn
 
 
