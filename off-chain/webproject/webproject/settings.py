@@ -185,11 +185,3 @@ AUTHENTICATION_BACKENDS = (
 REACT_URL = os.getenv('REACT_URL', 'http://localhost/admin')
 
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost')
-
-# EMAIL
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_FROM_ADDRESS = ''
