@@ -14,6 +14,7 @@ import './styles.scss';
 
 class BasicDetails extends Component {
 
+
     _sendHint = (text) => {
 
     };
@@ -64,6 +65,8 @@ class BasicDetails extends Component {
                                          title={"Close Search"}
                                          acceptButtonText={"Close"}/>
                             <ButtonModal username={this.props.name} buttonTitle={"Give a Hint"} type={"textarea"} action={this._sendHint}
+                                         handleAction ={this._handleInput}
+                                         inputProp={"hint"}
                                           placeholder={"Hint"} textContent={`Do you have any information about ${this.props.name}?
                                          Please give us all the information you can in order to help us find him.
                                           \nWe will refound your gas as soon as we find him!
@@ -72,6 +75,8 @@ class BasicDetails extends Component {
                                          textContent={`With your donation we will be able to help ${this.props.name}
                                          and others in these situation. Please enter the amount you wish to donate.
                                          \nAny value is appreciated!`}
+                                         handleAction ={this._handleInput}
+                                         inputProp={"donation"}
                                          placeholder={"Amount in ETH"}/>
                         </Col>
                     </Row>
