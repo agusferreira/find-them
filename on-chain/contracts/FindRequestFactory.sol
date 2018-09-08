@@ -12,13 +12,13 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
-contract FindRequestFactory is Ownable { //, Migratable {
+contract FindRequestFactory is Ownable, Migratable {
     address[] private deployedFindRequest;
     uint private findRequestCount;
 
     event newFindRequestCreated(address newAddress);
 
-    function initialize() public { //isInitializer("FindRequestFactory", "0")  {
+    function initialize() public isInitializer("FindRequestFactory", "0")  {
       findRequestCount = 0;
     }
 
