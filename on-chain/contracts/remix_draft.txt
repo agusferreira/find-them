@@ -110,9 +110,9 @@ contract FindRequest is Ownable {
     string[] private knownLocations;
     hint[] private receivedHints;
 
-    struct hint {
+    struct Hint {
         string text;
-        string state;
+        uint8 state;
         // TODO Maybe add here a posible location parameters
     }
 
@@ -166,16 +166,33 @@ contract FindRequest is Ownable {
         return knownLocations[knownLocationNumber];
     }
 
-    function submitHint(string text) public payable {
-
+    function submitHint(string _text) public payable returns(uint) {
+        // TODO - Require submitter != owner
+        Hint storage newHint = receivedHints[receivedHints.length + 1];
+        newHint.text = _text;
+        newHint.state = 1;
+        receivedHints.push(newHint);
     }
 
-    function acceptHint(uint hintNumber) public view onlyOwner returns(bool) {
-
+    function acceptHint(uint _hintNumber) public view onlyOwner returns(bool) {
+        require(receivedHints.length > _hintNumber);
+        Hint storage _hint = receivedHints[_hintNumber];
+        _hint.state = 2; // Accepted
     }
 
-    function rejecttHint(uint hintNumber) public view onlyOwner returns(bool) {
+    function getHint(uint _hintNumber) public view returns(string,uint) {
+        require(receivedHints.length > _hintNumber);
+        Hint storage hint = receivedHints[_hintNumber];
+        return (
+          hint.text,
+          uint(hint.state)
+        );
+    }
 
+    function rejectHint(uint _hintNumber) public view onlyOwner returns(bool) {
+        require(receivedHints.length > _hintNumber);
+        Hint storage _hint = receivedHints[_hintNumber];
+        _hint.state = 3; // Rejected
     }
 
     function closeFinding(string finalText) public payable onlyOwner {
