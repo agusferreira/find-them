@@ -47,6 +47,7 @@
     "react-dom": "^16.5.0",
     "react-router-dom": "^4.3.1",
     "react-router-redux": "^4.0.8",
+    "react-skylight": "^0.5.1",
     "redux": "latest",
     "redux-saga": "latest",
     "redux-thunk": "^2.3.0",

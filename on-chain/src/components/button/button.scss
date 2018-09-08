@@ -1,13 +1,13 @@
 @import '../../styles/variables.scss';
 
 .button{
-  padding: 7px 30px;
+  padding: 11px 35px;
   background-color: transparent;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: bold;
   margin-left: 10px;
   box-shadow: none;
-  border-radius: 15px;
+  border-radius: 23px;
   font-family: "Roboto-Bold", Helvetica, sans-serif;
 
 
@@ -28,9 +28,9 @@
     background: $blue;
 
     &:hover {
-      color: $white;
+      color: $blue;
       border-color: $blue;
-      background: $blue;
+      background: $background;
     }
 
 
