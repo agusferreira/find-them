@@ -48,7 +48,7 @@ contract FindRequestFactory is Ownable, Migratable {
     // Return a summary tuple of relevant variables of the factory contract
     function getSummary() public view returns (address, uint, uint) {
         return (
-          owner(),
+          owner,
           this.balance,
           findRequestCount
         );
@@ -57,7 +57,7 @@ contract FindRequestFactory is Ownable, Migratable {
     // Default function to withdraw balance from factory contract
     function withdraw(uint amount) public onlyOwner returns(bool) {
         require(amount <= address(this).balance);
-        owner().transfer(amount);
+        owner.transfer(amount);
         return true;
     }
 
@@ -78,6 +78,7 @@ contract FindRequest is Ownable {
 
     // FindRequest constructor
     constructor (address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
+        owner = _owner;
         age = _age;
         location = _location;
         lost_date = _lost_date;
