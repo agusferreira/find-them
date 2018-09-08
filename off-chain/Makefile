@@ -1,7 +1,6 @@
 FILE=development.yml
 WEB=`docker-compose -f $(FILE) ps | grep gunicorn | cut -d\  -f 1 | head -n 1`
 WEBS=`docker-compose -f $(FILE) ps | grep gunicorn | cut -d\  -f 1 `
-CELERY=`docker-compose ps | grep 'celery worker' | cut -d\  -f 1 | head -n 1`
 BACKUPS_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/backups/)
 ENV_STAGE = ``
 
