@@ -32,5 +32,5 @@ class RequestForFindSerializer(serializers.ModelSerializer):
         for key in self.fields:
             setattr(_rff, key, validated_data[key])
 
-        _hn.save()
+        _rff.save()
         return _rff
