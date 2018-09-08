@@ -1,24 +1,32 @@
+@import "../../styles/variables.scss";
+
 .home-section{
-  flex-grow: 1;
 
-  .left-section{
+}
 
-    padding: 3rem !important;
+.request-form{
 
-    h1{
-      font-size: 90px;
-      font-weight: bold;
-    }
+  .button-container{
+    padding: 10px 0;
 
-    .description{
-      font-size: 24px;
-    }
+    button{
+      background: $blue;
+      color: $white;
+      border-width: 0;
 
-    .call-to-action{
-      padding-top: 50px;
+      &:hover{
+        background: $blue-dark;
+      }
+
     }
 
   }
 
+}
 
+.request-form-modal{
+  .map-container{
+    height: 300px;
+    margin-bottom: 20px;
+  }
 }

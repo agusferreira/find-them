@@ -5,6 +5,7 @@ import {Grid, Row, Col} from 'react-bootstrap';
 
 import Card from "../../components/card/Card";
 import Header from "../../components/header/Header";
+import RequestForm from "./components/RequestForm";
 import './styles.scss';
 
 class Home extends Component {
@@ -38,11 +39,12 @@ class Home extends Component {
         return (
             <div>
                 <Header />
+                <RequestForm />
                 <Grid>
                     <Row>
                         {requests && requests.map((request, index) => {
                             return (
-                                <Col xs={3}>
+                                <Col xs={3} key={index}>
                                     <Card key={index} name={request.name} image={request.image}
                                           action={() => this.props.history.push(`detail/${request.contract}/`)}
                                           lastSeenLocation={request.lastSeenLocation}
