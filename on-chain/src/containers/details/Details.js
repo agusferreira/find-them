@@ -28,6 +28,7 @@ class Details extends Component {
 
         this.state = {
             address,
+            findRequest:false,
             donation_amount:'',
             hint:'',
             userOffchain: '',
@@ -40,20 +41,23 @@ class Details extends Component {
 
     componentDidMount(){
         if(this.props.drizzleStatus.initialized){
-            this._fetchSummary();
+            let {drizzle} = this.context;
+            let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
+            this.setState({findRequest},this._fetchSummary);
         }
     }
 
     componentWillReceiveProps(nextProps) {
         if (!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized) {
-            this._fetchSummary();
+            let {drizzle} = this.context;
+            let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
+            this.setState({findRequest},this._fetchSummary);
+
         }
     }
 
     _fetchSummary = () => {
-        let {drizzle} = this.context;
-        let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
-        findRequest.methods.getSummary().call().then((data) => {
+        this.state.findRequest.methods.getSummary().call().then((data) => {
             this.setState({userBlockchain: data});
             console.log(data);
             this._fetchOffChainData(this.state.address)
@@ -80,25 +84,29 @@ class Details extends Component {
     _acceptHint = (id) => {
     };
 
-    _sendHint = (text) => {
+    _sendHint = async (text) => {
+        console.log(text);
+        let {drizzle} = this.context;
+        let {findRequest}= this.state;
+        const accounts = await drizzle.web3.eth.getAccounts();
+
+        const stackId = await findRequest.methods.submitHint(text)
+            .send({
+                from: accounts[0]
+            });
 
     };
 
     _sendDonation = async (amount) => {
         let {drizzle} = this.context;
-        let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
+        let {findRequest}= this.state;
         const accounts = await drizzle.web3.eth.getAccounts();
-        console.log(findRequest);
 
         const stackId = await findRequest.methods.receiveDonations()
             .send({
                 from: accounts[0],
                 value: drizzle.web3.utils.toWei(amount.toString(), "ether")
             });
-
-        if(stackId.status){
-
-        }
 
     };
 

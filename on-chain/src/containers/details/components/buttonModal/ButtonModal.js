@@ -32,7 +32,7 @@ class ButtonModal extends Component {
 
 
     render() {
-        let {showModal, donation_amount, ajaxInProgress} = this.state;
+        let {showModal, ajaxInProgress} = this.state;
         let modalTitle = this.props.title ? this.props.title : `Contribute to ${this.props.username}'s cause`;
         let buttonsDisabled = ajaxInProgress;
         let className = this.props.className ? this.props.className : 'blue-full';
