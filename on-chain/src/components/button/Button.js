@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import './button.scss';
 
+
 export default class Button extends Component {
 
     render() {
@@ -11,7 +12,7 @@ export default class Button extends Component {
         if(disabled){
             return (
                 <button onClick={onClick} disabled={'disabled'}
-                        className={`santander-button ${className} disabled`}>
+                        className={`button ${className} disabled`}>
                     {children}
                 </button>
             );
@@ -19,7 +20,7 @@ export default class Button extends Component {
 
         return (
             <button onClick={onClick}
-                className={`santander-button ${color} ${className}`}>
+                className={`button ${color} ${className}`}>
                 {children}
             </button>
         );

@@ -1,3 +1,5 @@
+@import '../../../../styles/variables.scss';
+
 .details-basics-section{
   flex-grow: 1;
 
@@ -8,15 +10,23 @@
   }
 
   .data{
-    margin:20px;
-
     & p{
-      color:#A4AEC8;
+      color:$grey3;
+      font-size:18px;
     }
+
+  }
+
+  .avatar-icon{
+    height: 150px;
+    width: 150px;
+    border-radius: 50px;
+    margin-bottom: 20px;
+    margin-top: 20px;
   }
 
   .username{
-    color:#4435B5;
+    color:$blue;
     font-size: 31px;
     font-weight: 600;
     letter-spacing: -0.04px;
