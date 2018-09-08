@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
 // DEV Imports - just to test contract in remix
-//import "github.com/OpenZeppelin/zeppelin-solidity/contracts/ownership/Ownable.sol";
-//import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
+// import "github.com/OpenZeppelin/zeppelin-solidity/contracts/ownership/Ownable.sol";
+// import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
 // TODO: Fix this import, do not load in remix for some reason
 //import "https://github.com/zeppelinos/zos/blob/master/packages/lib/contracts/migrations/Migratable.sol";
 
@@ -48,8 +48,8 @@ contract FindRequestFactory is Ownable, Migratable {
     // Return a summary tuple of relevant variables of the factory contract
     function getSummary() public view returns (address, uint, uint) {
         return (
-          address(this.owner),
-          address(this).balance,
+          owner(),
+          this.balance,
           findRequestCount
         );
     }
@@ -57,7 +57,7 @@ contract FindRequestFactory is Ownable, Migratable {
     // Default function to withdraw balance from factory contract
     function withdraw(uint amount) public onlyOwner returns(bool) {
         require(amount <= address(this).balance);
-        owner.transfer(amount);
+        owner().transfer(amount);
         return true;
     }
 
@@ -77,8 +77,7 @@ contract FindRequest is Ownable {
     string[] private last_known_locations;
 
     // FindRequest constructor
-    constructor (address owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
-        owner = _owner;
+    constructor (address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
         age = _age;
         location = _location;
         lost_date = _lost_date;
@@ -86,6 +85,5 @@ contract FindRequest is Ownable {
         curator = msg.sender;
         initialIncentive = msg.value;
     }
-
 
 }
