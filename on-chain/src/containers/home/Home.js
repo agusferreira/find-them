@@ -43,11 +43,16 @@ class Home extends Component {
     _fetchSummary = () => {
         let {drizzle} = this.context;
         drizzle.contracts.FindRequestFactory.methods.getSummary().call()
-            .then(response => {
-                console.log(response);
+            .then(contractSummary => {
+                let contracts = parseInt(contractSummary[2], 10);
+                for(let i = 0; i < contracts; i++){
+                    drizzle.contracts.FindRequestFactory.methods
+                        .getFindRequest(i).call()
+                        .then(rta => {
+                            console.log(rta);
+                        });
+                }
             });
-        // drizzle.contracts.FindRequestFactory.methods.getFindRequest(0).call().then(console.log);
-        // drizzle.contracts.FindRequestFactory.methods.getFindRequest(1).call().then(console.log);
     };
 
     render() {

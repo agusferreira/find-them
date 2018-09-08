@@ -4,6 +4,7 @@ import { drizzleConnect } from 'drizzle-react';
 
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import {withRouter} from 'react-router-dom';
 import {GoogleMap, Marker} from 'react-google-maps';
 import {
     Grid, Row, Col, Modal, FormGroup,
@@ -104,6 +105,7 @@ class RequestForm extends Component{
         let lastDate = `${lastSeenDate}`;
 
         if (drizzleStatus.initialized) {
+
             const stackId = await drizzle.contracts.FindRequestFactory.methods.createFindRequest(
                     age,
                     location,
@@ -114,30 +116,38 @@ class RequestForm extends Component{
                     value: drizzle.web3.utils.toWei(incentive.toString(), "ether")
                 });
 
-            console.log(stackId);
             if(stackId.status){
-                // this.setState({button_disabled:false});
-                // TODO - Post result to server
-                const formData = new FormData();
-                formData.append('photo', photo);
-                formData.set('first_name', first_name);
-                formData.set('last_name', last_name);
-                formData.set('identifier', identifier);
-                formData.set('creator_email', email);
-                formData.set('lost_date', lastDate);
-                formData.set('location', location);
-                formData.set('description', description);
-                formData.set('creator_address', accounts[0]);
-                formData.set('contract_deployed_address', accounts[0]);
-                formData.set('finished', false);
-                this._postToOffChain(formData);
+                try{
+                    drizzle.contracts.FindRequestFactory.methods.getSummary().call()
+                        .then(contractSummary => {
+                            let contractsAmount = parseInt(contractSummary[2], 10);
+                            let newContract = stackId.events.newFindRequestCreated.returnValues.newAddress;
+
+                            const formData = new FormData();
+                            formData.append('photo', photo);
+                            formData.set('first_name', first_name);
+                            formData.set('last_name', last_name);
+                            formData.set('identifier', identifier);
+                            formData.set('creator_email', email);
+                            formData.set('lost_date', lastDate);
+                            formData.set('location', location);
+                            formData.set('description', description);
+                            formData.set('creator_address', accounts[0]);
+                            formData.set('contract_deployed_address', newContract);
+                            formData.set('finished', false);
+                            formData.set('index', contractsAmount - 1);
+                            this._postToOffChain(formData);
+                        });
+                }
+                catch(e){
+                    console.log(e);
+                }
             }
 
             //Use the dataKey to display the transaction status.
             if (state.transactionStack[stackId]) {
                 const txHash = state.transactionStack[stackId];
                 console.log('TxHash: ', state.transactions[txHash].status);
-            //     return state.transactions[txHash].status
             }
 
         }
@@ -149,6 +159,7 @@ class RequestForm extends Component{
         axios.post(URL, form, {'Content-Type': 'multipart/form-data'})
             .then(response => {
                 console.log(response);
+                this.props.history.push(`/detail/${response.data.contract_deployed_address}/`);
             })
             .catch(e => {
                 console.log(e);
@@ -369,5 +380,5 @@ const mapStateToProps = state => {
     }
 };
 
-const RequestFormContainer = drizzleConnect(RequestForm, mapStateToProps);
+const RequestFormContainer = withRouter(drizzleConnect(RequestForm, mapStateToProps));
 export default RequestFormContainer;
