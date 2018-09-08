@@ -12,7 +12,7 @@ class RequestForFindViewSet(APIView):
 
     def get(self, request, contract_deployed_address=None):
         if contract_deployed_address:
-            rff = get_object_or_404(RequestForFind, contract_deployed_address=contract_deployed_address)
+            rff = get_object_or_404(RequestForFind, contract_deployed_address=contract_deployed_address, finished=False)
             serializer_data = RequestForFindSerializer(rff, many=False)
         else:
             rffs = RequestForFind.objects.filter(finished=False)
