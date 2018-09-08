@@ -45,7 +45,6 @@ import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
 // import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
-
 contract FindRequestFactory is Ownable {
     address[] private deployedFindRequest;
 
@@ -111,6 +110,9 @@ contract FindRequest is Ownable {
 
     string[] private knownLocations;
     mapping(address => bool) acceptedHintsMap;
+    # Add to main contract - Grant access to watchers
+    mapping(address => bool) allowedHintsWatchers;
+
     uint acceptedHints;
     uint acceptedHintsResponses;
 
@@ -129,7 +131,6 @@ contract FindRequest is Ownable {
       RedeemingBalances, // 3
       Close // 4
     }
-
 
 
     // FindRequest constructor
@@ -151,6 +152,12 @@ contract FindRequest is Ownable {
 
     modifier onlyCurator() {
         require(curator == msg.sender);
+        _;
+    }
+
+    # Add to main contract - Grant access to watchers
+    modifier ownerOrWatcher() {
+        require(_isOwnerOrWatcher());
         _;
     }
 
@@ -208,9 +215,8 @@ contract FindRequest is Ownable {
         acceptedHintsMap[msg.sender] = true;
     }
 
-    function getHint(uint _hintNumber) public view onlyOwner returns(string,uint) {
-        // TODO Allow approved address see hints too
-
+    # Add to main contract - Grant access to watchers
+    function getHint(uint _hintNumber) public view ownerOrWatcher returns(string,uint) {
         require(receivedHints.length > _hintNumber);
         Hint storage selectedHint = receivedHints[_hintNumber];
         return (
@@ -288,6 +294,11 @@ contract FindRequest is Ownable {
 
     }
 
+    # Add to main contract - Grant access to watchers
+    function grantAccessToWatchHints(address watcherAddress) public payable onlyOwner {
+        allowedHintsWatchers[watcherAddress] = true;
+    }
+
     // Default function to withdraw balance from factory contract
     // function withdraw(uint amount) public onlyOwner returns(bool) {
     //     require(amount <= address(this).balance);
@@ -308,6 +319,20 @@ contract FindRequest is Ownable {
           return false;
         } else {
           return keccak256(a) == keccak256(b);
+        }
+    }
+
+
+    # Add to main contract - Grant access to watchers
+    // Utility function to check if the sender is owner or watcher
+    function _isOwnerOrWatcher() private view returns(bool){
+        if (owner == msg.sender) {
+            return true;
+        } else {
+            if (allowedHintsWatchers[msg.sender] == true) {
+                return true;
+            }
+            return false;
         }
     }
 }
