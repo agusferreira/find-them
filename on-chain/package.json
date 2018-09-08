@@ -77,7 +77,7 @@
   "bugs": {
     "url": "https://github.com/agusferreira/find-them/issues"
   },
-  "homepage": "https://github.com/agusferreira/find-them#readme",
+  "homepage": "",
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,mjs}"
