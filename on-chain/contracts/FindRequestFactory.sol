@@ -74,7 +74,9 @@ contract FindRequest is Ownable {
     address private curator;
     uint private initialIncentive;
 
-    string[] private last_known_locations;
+    string[] private knownLocations;
+    string[] private receivedHints;
+
 
     // FindRequest constructor
     constructor (address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
@@ -85,6 +87,27 @@ contract FindRequest is Ownable {
         description = _description;
         curator = msg.sender;
         initialIncentive = msg.value;
+    }
+
+    // Return a summary tuple of relevant variables of the factory contract
+    function getSummary() public view returns(address,uint,uint,string,string,string) {
+        return (
+          owner,
+          this.balance,
+          age,
+          location,
+          lost_date,
+          description
+        );
+    }
+
+    function getCurator() public view returns(address) {
+      return curator;
+    }
+
+    function getKnownLocations(uint knownLocationNumber) public view returns(string) {
+        require(knownLocations.length > knownLocationNumber);
+        return knownLocations[knownLocationNumber];
     }
 
 }
