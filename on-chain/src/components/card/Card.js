@@ -1,6 +1,6 @@
 import React from 'react';
 
-import MaterialIcon, {colorPalette} from 'material-icons-react';
+import MaterialIcon from 'material-icons-react';
 import {Button} from "react-bootstrap";
 
 import './card.scss';
