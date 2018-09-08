@@ -48,18 +48,11 @@ class Details extends Component {
         }
     }
 
-<<<<<<< HEAD
     UNSAFE_componentWillReceiveProps(nextProps){
         if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
-            this._fetchSummary();
-=======
-    componentWillReceiveProps(nextProps) {
-        if (!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized) {
             let {drizzle} = this.context;
             let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
             this.setState({findRequest},this._fetchSummary);
-
->>>>>>> 8cc69e9e35d775f41d44dad01671a8e19c63da0c
         }
     }
 
