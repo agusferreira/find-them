@@ -1,40 +1,14 @@
 @import '../../styles/variables.scss';
 
 .button{
-  padding: 7px 30px;
+  padding: 10px 20px;
   background-color: transparent;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: bold;
   margin-left: 10px;
   box-shadow: none;
-  border-radius: 15px;
-  font-family: "Roboto-Bold", Helvetica, sans-serif;
-
-
-  &.blue{
-    color: $blue;
-    border: 1px solid $blue;
-
-    &:hover{
-      color: $white;
-      background: $blue;
-    }
-
-  }
-
-  &.blue-full {
-    color: $white;
-    border-color: $blue;
-    background: $blue;
-
-    &:hover {
-      color: $white;
-      border-color: $blue;
-      background: $blue;
-    }
-
-
-
-  }
+  border-radius: 0;
+  position: relative;
 
 }
