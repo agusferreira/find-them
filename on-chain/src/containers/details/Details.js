@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 
 import {Grid, Col, Row} from 'react-bootstrap';
-import PropTypes from 'prop-types';
 import {drizzleConnect} from 'drizzle-react';
 
 import './style.scss';
@@ -28,6 +28,12 @@ class Details extends Component {
             errorAddress: null,
             hints: [{type: 'success', hint: "Waldo was seen in Full Node programming", isAdmin: false},
                 {type: 'info', hint: "Waldo was in ETHBerlin pitball", isAdmin: true}]
+        }
+    }
+
+    componentDidMount(){
+        if(this.props.drizzleStatus.initialized){
+            this._fetchSummary();
         }
     }
 
