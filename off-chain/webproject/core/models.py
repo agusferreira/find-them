@@ -15,6 +15,8 @@ class RequestForFind(models.Model):
     last_name = models.CharField(max_length=130)
     photo = models.ImageField(upload_to=images_upload_to)
     description = models.TextField(max_length=1024)
+    location = models.CharField(max_length=130)
+    lost_date = models.CharField(max_length=130)
     creator_address = models.CharField(max_length=300)
     creator_email = models.EmailField()
     contract_deployed_address = models.CharField(max_length=300)
