@@ -71,24 +71,32 @@ contract FindRequest is Ownable {
     string private description;
     address private curator;
     uint private initialIncentive;
+    uint private incentiveToRedeem;
     uint8 private findRequestState;
+    string closingMessage;
 
     string[] private knownLocations;
-    hint[] private receivedHints;
+    mapping(address => bool) acceptedHintsMap;
+    uint acceptedHints;
+    uint acceptedHintsResponses;
+
+    struct Hint {
+        string text;
+        uint8 state;
+        // TODO Maybe add here a posible location parameters
+    }
+
+    Hint[] private receivedHints;
 
     // TODO Implement this contract state
     enum FindRequestState {
       Open, // 1
-      RedimingIncentives, // 2
-      RedimingBalances, // 3
+      RedeemingIncentives, // 2
+      RedeemingBalances, // 3
       Close // 4
     }
 
-    struct hint {
-        string text;
-        string state;
-        // TODO Maybe add here a posible location parameters
-    }
+
 
     // FindRequest constructor
     constructor(address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
@@ -100,6 +108,7 @@ contract FindRequest is Ownable {
         curator = msg.sender;
         initialIncentive = msg.value;
         findRequestState = 1;
+        acceptedHints = 0;
     }
 
     modifier onlyHinter() {
@@ -134,7 +143,7 @@ contract FindRequest is Ownable {
     }
 
     function addKnownLocation(string location) public payable onlyOwner {
-        require(!compare(location, ''));
+        require(!compare(location, ""));
         knownLocations.push(location);
     }
 
@@ -143,28 +152,94 @@ contract FindRequest is Ownable {
         return knownLocations[knownLocationNumber];
     }
 
-    function submitHint(string text) public payable {
-        // TODO Agus
+    function submitHint(string _text) public payable {
+        require(msg.sender != owner);
+        require(!compare(_text, ""));
+
+        Hint memory newHint = Hint(_text, 1);
+        receivedHints.push(newHint);
     }
 
-    function acceptHint(uint hintNumber) public view onlyOwner returns(bool) {
-        // TODO Agus
+    function acceptHint(uint _hintNumber) public onlyOwner payable {
+        require(receivedHints.length > _hintNumber);
+        Hint storage _hint = receivedHints[_hintNumber];
+
+        // Validates hint is not in a final state
+        require(_hint.state == 1);
+        _hint.state = 2; // Accepted
+
+
+        // Register accepted address and increment counter
+        acceptedHints++;
+        acceptedHintsMap[msg.sender] = true;
     }
 
-    function rejecttHint(uint hintNumber) public view onlyOwner returns(bool) {
-        // TODO Agus
+    function getHint(uint _hintNumber) public view onlyOwner returns(string,uint) {
+        // TODO Allow approved address see hints too
+
+        require(receivedHints.length > _hintNumber);
+        Hint storage selectedHint = receivedHints[_hintNumber];
+        return (
+          selectedHint.text,
+          uint(selectedHint.state)
+        );
+    }
+
+    function rejectHint(uint _hintNumber) public onlyOwner payable {
+        require(receivedHints.length > _hintNumber);
+        Hint storage _hint = receivedHints[_hintNumber];
+
+        // Validates hint is not in a final state
+        require(_hint.state == 1);
+        _hint.state = 3; // Rejected
     }
 
     function closeFinding(string finalText) public payable onlyOwner {
         require(findRequestState == 1); // 1 = Open
+
+        // TODO Pay gas cost of all Hints received (accepted or not)
+
+        // Calculate max incentive to Redeem (90% of total incentive stored)
+        uint totalIncentiveToRedeem = SafeMath.div(SafeMath.mul(this.balance, 90), 100);
+
+        // Verify that there is any accepted hints
+        if (acceptedHints > 0) {
+            // Change state to RedeemingIncentives (code: 2)
+            findRequestState = 2;
+            incentiveToRedeem = SafeMath.div(totalIncentiveToRedeem, acceptedHints);
+        } else {
+            // Change state to RedeemingBalances (code: 3)
+            findRequestState = 3;
+        }
+
+        // Set the closing message
+        closingMessage = finalText;
     }
 
     function redeemIncentive() public payable onlyHinter {
         require(findRequestState == 2); // 2 = RedimingIncentives
+        require(acceptedHintsMap[msg.sender]);
+
+        // Transfer incentive money to acceptedHints address
+        msg.sender.transfer(incentiveToRedeem);
+
+        // Remove address from acceptedHintsMap and record the response
+        acceptedHintsMap[msg.sender] = false;
+        acceptedHintsResponses++;
+
+        // Check if all accepted hints responses were recorder
+        if (acceptedHintsResponses == acceptedHints) {
+            findRequestState = 3; // 3 = RedimingBalances
+        }
     }
 
     function rejectIncentive() public payable onlyHinter {
         require(findRequestState == 2); // 2 = RedimingIncentives
+        require(acceptedHintsMap[msg.sender]);
+
+        // Remove address from acceptedHintsMap and record the response
+        acceptedHintsMap[msg.sender] = false;
+        acceptedHintsResponses++;
     }
 
     function redeemBalance() public payable onlyOwner {
