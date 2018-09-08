@@ -1,1 +1,47 @@
+# ON CHAIN
 .idea/
+
+
+# OFF CHAIN
+# Python cache
+_
+_pycache__/
+*.pyc
+
+# Virtual environment
+env/
+venv/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac desktop service store files
+.DS_Store
+
+# Env variables
+.env
+
+## Project
+
+# Local Settings
+off-chain/webproject/webproject/local_settings.py
+
+# Static
+/static/
+
+# Locale
+/locale/
+
+# Media files
+off-chain/webproject/media/
+
+# Docker
+off-chain/nginx/sites-enabled/nginx.conf
+

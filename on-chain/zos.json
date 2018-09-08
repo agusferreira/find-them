@@ -1,5 +1,7 @@
 {
   "name": "find-them",
   "version": "0.1.0",
-  "contracts": {}
+  "contracts": {
+    "FindRequestFactory": "FindRequestFactory"
+  }
 }

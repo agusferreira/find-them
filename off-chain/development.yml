@@ -1,0 +1,78 @@
+version: "2"
+
+services:
+  web:
+    restart: always
+    build: ./webproject
+    image: webworkerimage
+    expose:
+      - "8000"
+    links:
+      - postgres:postgres
+    ports:
+      - "4444:4444"
+    volumes:
+      - ./webproject:/usr/src/app
+      - ./backups:/usr/src/backups
+      - /usr/src/app/static
+      - mediadata:/usr/src/app/media
+      - /dev/shm:/dev/shm
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    env_file: .env
+    environment:
+      DEBUG: 'true'
+      VIRTUAL_HOST: 'webproject'
+      VIRTUAL_PORT: '8000'
+    command: /usr/local/bin/gunicorn webproject.wsgi:application -w 4 -t 120 -b 0.0.0.0:8000 --reload --log-level debug
+    stdin_open: true
+    tty: true
+    networks:
+      - front-tier
+      - back-tier
+
+  nginx:
+    restart: always
+    build: ./nginx
+    container_name: ft-nginx
+    environment:
+      DEFAULT_HOST: 'localhost'
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/sites-enabled:/etc/nginx
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    volumes_from:
+      - web
+    depends_on:
+      - web
+    links:
+      - web
+    networks:
+      - front-tier
+
+  postgres:
+    restart: always
+    image: postgres:9.6
+    container_name: pz01
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - back-tier
+
+volumes:
+  pgdata:
+  mediadata:
+
+networks:
+  front-tier:
+    driver: bridge
+  back-tier:
+    driver: bridge
