@@ -22,10 +22,11 @@ contract FindRequestFactory is Ownable, Migratable {
       findRequestCount = 0;
     }
 
-    // TODO: Complete this funtion with init FindRequest parameters
-    function createFindRequest() public payable {
+    function createFindRequest(uint8 _age, string _location, string _lost_date, string _description) public payable {
+        // TODO > put some requirements for de parameters
+
         // Create new Find Request contract and get deployed address
-        address newFindRequest = new FindRequest();
+        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lost_date, _description);
 
         // Save new contract address and increment total counter
         deployedFindRequest.push(newFindRequest);
@@ -66,5 +67,25 @@ contract FindRequestFactory is Ownable, Migratable {
 }
 
 contract FindRequest is Ownable {
-      // TODO: Here put the main contract code
+    uint8 private age;
+    string private location;
+    string private lost_date;
+    string private description;
+    address private curator;
+    uint private initialIncentive;
+
+    string[] private last_known_locations;
+
+    // FindRequest constructor
+    constructor (address owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
+        owner = _owner;
+        age = _age;
+        location = _location;
+        lost_date = _lost_date;
+        description = _description;
+        curator = msg.sender;
+        initialIncentive = msg.value;
+    }
+
+
 }
