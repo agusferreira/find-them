@@ -10,18 +10,25 @@ class Details extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            hints: [{type:'success',hint:"Waldo was seen in Full Node programming"},
-                {type:'danger',hint:"Waldo was seen in Berghain drunk AF"},
-                {type:'info', hint:"Waldo was in ETHBerlin pitball"},
-                {type:'success',hint:"Waldo was seen in Full Node programming"},
-                {type:'danger',hint:"Waldo was seen in Berghain drunk AF"},
-                {type:'info', hint:"Waldo was in ETHBerlin pitball"}]
+            hints: [{type:'success',hint:"Waldo was seen in Full Node programming", isAdmin:false},
+                {type:'info', hint:"Waldo was in ETHBerlin pitball", isAdmin:true},
+                {type:'success',hint:"Waldo was seen in Full Node programming", isAdmin:false},
+                {type:'info', hint:"Waldo was in ETHBerlin pitball", isAdmin:true}]
         }
     }
 
+    _rejectHint = (id) =>{
+
+    };
+
+    _acceptHint = (id) =>{
+
+    };
+
     _renderHints = ()=>{
         return this.state.hints.map((hint,index)=>{
-            return <Tips key={hint.hint} type={hint.type} title={`Hint ${index+1}`} hint={hint.hint}/>})
+            return <Tips key={hint.hint} type={hint.type} title={`Hint ${index+1}`} hint={hint.hint}
+                         editable={hint.isAdmin} acceptAction={this._acceptHint} rejectAction={this._rejectHint}/>})
     };
 
     render() {
@@ -32,7 +39,6 @@ class Details extends Component {
                               date={"07/09/2018"} contact={"john.doe@gmail.com"}
                               description={"1.80m, dark hair, blue eyes"}
                               incentive={"12 ETH"}/>
-
                 <Grid>
                     <Row>
                         <Col xs={12}>
