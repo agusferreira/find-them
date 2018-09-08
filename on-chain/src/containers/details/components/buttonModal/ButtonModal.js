@@ -29,15 +29,10 @@ class ButtonModal extends Component {
         this.setState({[prop]: value});
     };
 
-    _submitDonation = () => {
-
-    };
 
     render() {
         let {showModal, donation_amount, ajaxInProgress }= this.state;
         let modalTitle = `Contribute to ${this.props.username}'s cause`;
-        let modalContent = `With your donation we will be able to help ${this.props.username} and others in these situation. 
-        Please enter the amount you wish to donate. Any value is appreciated!`;
         let buttonsDisabled = ajaxInProgress;
 
         return (
