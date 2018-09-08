@@ -36,7 +36,7 @@ services:
     build: ./nginx
     container_name: ft-nginx
     environment:
-      DEFAULT_HOST: 'localhost'
+      DEFAULT_HOST: 'find-them.xivis.com'
     ports:
       - "8444:80"
     volumes:
