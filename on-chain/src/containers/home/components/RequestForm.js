@@ -3,12 +3,13 @@ import React, {Component} from 'react';
 import axios from 'axios';
 import {GoogleMap, Marker} from 'react-google-maps';
 import {
-    Grid, Row, Col, Button, Modal, FormGroup,
+    Grid, Row, Col, Modal, FormGroup,
     ControlLabel, FormControl, Form, HelpBlock
 } from 'react-bootstrap';
 import Datepicker from 'react-16-bootstrap-date-picker';
 
 import {BasicGoogleMap} from "../../../components/map/Map";
+import Button from "../../../components/button/Button";
 
 class RequestForm extends Component{
 
@@ -16,6 +17,7 @@ class RequestForm extends Component{
         super(props);
 
         this.state = {
+            ajaxInProgress: false,
             show: false,
 
             name: '',
@@ -122,8 +124,9 @@ class RequestForm extends Component{
 
         let {name, surname, id, email, description, age,
             incentive, lastSeenDate, lastSeenLocation,
-            myLatLng
+            myLatLng, ajaxInProgress
         } = this.state;
+        let buttonsDisabled = ajaxInProgress;
 
         return (
             <Grid className={'request-form'}>
@@ -269,8 +272,18 @@ class RequestForm extends Component{
                         </div>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={this._submitForm}>Submit</Button>
-                        <Button onClick={this._handleClose}>Cancel</Button>
+                        <Row className={"modal-buttons"}>
+                            <Col xs={12}>
+                                <Button className={`blue ${buttonsDisabled ? 'disabled' : ''}`}
+                                        onClick={this._handleClose}>
+                                    Cancel
+                                </Button>
+                                <Button className={`blue-full ${buttonsDisabled ? 'disabled' : ''}`}
+                                        onClick={this._submitForm}>
+                                    Submit
+                                </Button>
+                            </Col>
+                        </Row>
                     </Modal.Footer>
                 </Modal>
             </Grid>

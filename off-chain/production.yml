@@ -38,7 +38,7 @@ services:
     environment:
       DEFAULT_HOST: 'localhost'
     ports:
-      - "8000:80"
+      - "8444:80"
       - "443:443"
     volumes:
       - ./nginx/sites-enabled:/etc/nginx

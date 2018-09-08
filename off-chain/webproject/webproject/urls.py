@@ -11,7 +11,6 @@ urlpatterns = [
 
     # Core
     url(r'api/v1/', include('core.urls')),
-
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
