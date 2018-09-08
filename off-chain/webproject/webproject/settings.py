@@ -50,10 +50,9 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'solo',
+    'import_export',
 ]
 
-# IMPORTANT - CUSTOM MODEL FOR USER
-AUTH_USER_MODEL = 'core.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

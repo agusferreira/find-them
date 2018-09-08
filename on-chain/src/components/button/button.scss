@@ -1,14 +1,39 @@
 @import '../../styles/variables.scss';
 
 .button{
-  padding: 10px 20px;
+  padding: 11px 35px;
   background-color: transparent;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px;
   font-weight: bold;
   margin-left: 10px;
   box-shadow: none;
-  border-radius: 0;
-  position: relative;
+  border-radius: 23px;
+
+
+  &.blue{
+    color: $blue;
+    border: 1px solid $blue;
+
+    &:hover{
+      color: $white;
+      background: $blue;
+    }
+
+  }
+
+  &.blue-full {
+    color: $white;
+    border-color: $blue;
+    background: $blue;
+
+    &:hover {
+      color: $blue;
+      border-color: $blue;
+      background: $background;
+    }
+
+
+
+  }
 
 }

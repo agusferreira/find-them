@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
 // DEV Imports - just to test contract in remix
-//import "github.com/OpenZeppelin/zeppelin-solidity/contracts/ownership/Ownable.sol";
-//import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
+// import "github.com/OpenZeppelin/zeppelin-solidity/contracts/ownership/Ownable.sol";
+// import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
 // TODO: Fix this import, do not load in remix for some reason
 //import "https://github.com/zeppelinos/zos/blob/master/packages/lib/contracts/migrations/Migratable.sol";
 
@@ -22,10 +22,11 @@ contract FindRequestFactory is Ownable, Migratable {
       findRequestCount = 0;
     }
 
-    // TODO: Complete this funtion with init FindRequest parameters
-    function createFindRequest() public payable {
+    function createFindRequest(uint8 _age, string _location, string _lost_date, string _description) public payable {
+        // TODO > put some requirements for de parameters
+
         // Create new Find Request contract and get deployed address
-        address newFindRequest = new FindRequest();
+        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lost_date, _description);
 
         // Save new contract address and increment total counter
         deployedFindRequest.push(newFindRequest);
@@ -47,8 +48,8 @@ contract FindRequestFactory is Ownable, Migratable {
     // Return a summary tuple of relevant variables of the factory contract
     function getSummary() public view returns (address, uint, uint) {
         return (
-          address(this.owner),
-          address(this).balance,
+          owner(),
+          this.balance,
           findRequestCount
         );
     }
@@ -56,7 +57,7 @@ contract FindRequestFactory is Ownable, Migratable {
     // Default function to withdraw balance from factory contract
     function withdraw(uint amount) public onlyOwner returns(bool) {
         require(amount <= address(this).balance);
-        owner.transfer(amount);
+        owner().transfer(amount);
         return true;
     }
 
@@ -66,5 +67,23 @@ contract FindRequestFactory is Ownable, Migratable {
 }
 
 contract FindRequest is Ownable {
-      // TODO: Here put the main contract code
+    uint8 private age;
+    string private location;
+    string private lost_date;
+    string private description;
+    address private curator;
+    uint private initialIncentive;
+
+    string[] private last_known_locations;
+
+    // FindRequest constructor
+    constructor (address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
+        age = _age;
+        location = _location;
+        lost_date = _lost_date;
+        description = _description;
+        curator = msg.sender;
+        initialIncentive = msg.value;
+    }
+
 }

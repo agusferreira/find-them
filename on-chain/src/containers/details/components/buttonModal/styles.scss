@@ -1,0 +1,59 @@
+@import '../../../../styles/variables.scss';
+
+.donation-section{
+  font-size: 18px;
+  color:$grey3;
+
+  &.text-left {
+    text-align: left
+  }
+  &.text-right{
+    text-align: right;
+  }
+  &.text-center{
+    text-align: center;
+  }
+
+}
+
+.modal{
+  display: -webkit-flex !important;
+  display: -ms-flexbox !important;
+  display: flex !important;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.modal-title{
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  color: $blue;
+}
+
+.modal-content{
+  font-size: 18px;
+  color:$grey3;
+  border-radius: 0;
+  box-shadow: none;
+
+}
+
+.modal-body{
+  padding:20px;
+
+
+  .modal-buttons{
+    padding: 15px;
+    text-align: center;
+
+    button{
+      margin: 0 5px;
+    }
+
+  }
+
+}
