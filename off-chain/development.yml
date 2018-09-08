@@ -16,6 +16,7 @@ services:
       - ./backups:/usr/src/backups
       - /usr/src/app/static
       - mediadata:/usr/src/app/media
+      - ./../on-chain/build/contracts:/usr/src/app/contracts
       - /dev/shm:/dev/shm
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
