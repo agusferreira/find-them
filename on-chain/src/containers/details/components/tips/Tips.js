@@ -29,10 +29,22 @@ class Tips extends Component {
     render() {
         let {showModal, action, buttonsDisabled} = this.state;
         let modalContent = action !== '' ? `Are you sure you want to ${action} this hint?` : '';
+        let type = "info";
+        switch (this.props.type) {
+            case 1:
+                type = "info";
+                break;
+            case 2:
+                type = "success";
+                break;
+            case 3:
+                type = "error";
+                break;
+        }
 
         return (
             <Grid>
-                <Panel className={`custom-panel ${this.props.type}`} bsStyle={this.props.type}>
+                <Panel className={`custom-panel ${type}`} bsStyle={type}>
                     <Panel.Body>
                         <Grid>
                             <Row>
