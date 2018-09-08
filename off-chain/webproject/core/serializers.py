@@ -12,6 +12,7 @@ class HintNotificationSerializer(serializers.ModelSerializer):
         for key in self.fields:
             setattr(_hn, key, validated_data[key])
 
+        _hn.save()
         return _hn
 
 
@@ -27,4 +28,5 @@ class RequestForFindSerializer(serializers.ModelSerializer):
         for key in self.fields:
             setattr(_rff, key, validated_data[key])
 
+        _hn.save()
         return _rff
