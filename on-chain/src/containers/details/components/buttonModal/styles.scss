@@ -1,17 +1,7 @@
 @import '../../../../styles/variables.scss';
 
-.donation-section{
+.donate-section{
+  display: inline-block;
   font-size: 18px;
   color:$grey3;
-
-  &.text-left {
-    text-align: left
-  }
-  &.text-right{
-    text-align: right;
-  }
-  &.text-center{
-    text-align: center;
-  }
-
 }

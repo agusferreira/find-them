@@ -9,7 +9,22 @@
 
   }
 
+  .button-container{
+    button{
+      margin-left: 25px;
+    }
+  }
+
+  .detail-title{
+    padding: 20px 0;
+  }
+
   .data{
+
+    h2{
+      margin: 0;
+    }
+
     & p{
       color:$grey3;
       font-size:18px;
@@ -31,6 +46,10 @@
     font-weight: 600;
     letter-spacing: -0.04px;
     line-height: 41px;
+  }
+
+  .map-container{
+    height: 400px;
   }
 
 }
