@@ -1,20 +1,23 @@
 import React, {Component} from 'react';
 
 import {Grid, Col, Row} from 'react-bootstrap';
+import PropTypes from 'prop-types';
+import {drizzleConnect} from 'drizzle-react';
+
 import './style.scss';
 import BasicDetails from "./components/basicDetails/BasicDetails";
 import Tips from "./components/tips/Tips";
-import Button from "../../components/button/Button";
 import ButtonModal from "./components/buttonModal/ButtonModal";
+
 
 class Details extends Component {
 
-    constructor(props) {
+    constructor(props, context) {
         super(props);
         this.state = {
+            address:'',
+            errorAddress:null,
             hints: [{type: 'success', hint: "Waldo was seen in Full Node programming", isAdmin: false},
-                {type: 'info', hint: "Waldo was in ETHBerlin pitball", isAdmin: true},
-                {type: 'success', hint: "Waldo was seen in Full Node programming", isAdmin: false},
                 {type: 'info', hint: "Waldo was in ETHBerlin pitball", isAdmin: true}]
         }
     }
@@ -24,11 +27,25 @@ class Details extends Component {
     };
 
     _acceptHint = (id) => {
-
     };
 
     _addWatcher = (address) => {
+        if(this.checkAddress()){
 
+        }else{
+            return false;
+        }
+    };
+
+    checkAddress = () => {
+        let {drizzle} = this.context;
+        if (drizzle.web3.utils.isAddress(this.state.address)) {
+            this.setState({errorAddress: 'success'});
+            return true;
+        } else {
+            this.setState({errorAddress: 'error'});
+            return false;
+        }
     };
 
     _renderHints = () => {
@@ -36,6 +53,10 @@ class Details extends Component {
             return <Tips key={hint.hint} type={hint.type} title={`Hint ${index + 1}`} hint={hint.hint}
                          editable={hint.isAdmin} acceptAction={this._acceptHint} rejectAction={this._rejectHint}/>
         })
+    };
+
+    _handleInput = (prop, value) => {
+        this.setState({[prop]: value});
     };
 
     render() {
@@ -56,6 +77,10 @@ class Details extends Component {
                                 <Col xs={2} style={{marginTop:50}}>
                                     <ButtonModal username={this.props.name} buttonTitle={"Add watcher"} type={"input"}
                                                  action={this._addWatcher}
+                                                 value={this.state.address}
+                                                 validation={this.state.errorAddress}
+                                                 handleAction ={this._handleInput}
+                                                 inputProp={"address"}
                                                  title={"Add new watcher"}
                                                  acceptButtonText={"Add"}
                                                  placeholder={"Address"} textContent={`If you add a watcher to this search, he/she would be
@@ -73,4 +98,18 @@ class Details extends Component {
 
 }
 
-export default Details;
+Details.contextTypes = {
+    drizzle: PropTypes.object
+};
+
+const mapStateToProps = state => {
+    return {
+        drizzleStatus: state.drizzleStatus,
+        web3: state.web3,
+    }
+};
+
+const DetailsContainer = drizzleConnect(Details, mapStateToProps);
+
+export default DetailsContainer;
+

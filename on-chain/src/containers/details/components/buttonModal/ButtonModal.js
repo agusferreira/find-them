@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import {Modal, Grid, Row, Col, FormGroup, FormControl} from 'react-bootstrap';
+import {Modal, Grid, Row, Col, FormGroup, FormControl, HelpBlock} from 'react-bootstrap';
 
 import './styles.scss';
 import Button from "../../../../components/button/Button";
@@ -25,16 +25,17 @@ class ButtonModal extends Component {
         this.setState({showModal: true});
     };
 
-    _handleInput = (prop, value) => {
-        this.setState({[prop]: value});
+    _handleInput = (text) => {
+        console.log(text);
+        this.props.handleAction(this.props.inputProp, text);
     };
 
 
     render() {
-        let {showModal, donation_amount, ajaxInProgress }= this.state;
-        let modalTitle = this.props.title? this.props.title:`Contribute to ${this.props.username}'s cause`;
+        let {showModal, donation_amount, ajaxInProgress} = this.state;
+        let modalTitle = this.props.title ? this.props.title : `Contribute to ${this.props.username}'s cause`;
         let buttonsDisabled = ajaxInProgress;
-        let className = this.props.className? this.props.className: 'blue-full';
+        let className = this.props.className ? this.props.className : 'blue-full';
         return (
             <div className={"donate-section"}>
                 <Button className={className} onClick={this._showModal}>{this.props.buttonTitle}</Button>
@@ -43,7 +44,7 @@ class ButtonModal extends Component {
                         <Modal.Title id={"modalTitle"}>{modalTitle}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Grid  className={"row margin-top-20 margin-bottom-20 text-center"}>
+                        <Grid className={"row margin-top-20 margin-bottom-20 text-center"}>
                             <Row>
                                 <Col xs={6}>
                                     <p>{this.props.textContent}</p>
@@ -52,28 +53,32 @@ class ButtonModal extends Component {
                             {this.props.placeholder && this.props.type &&
                             <Row>
                                 <Col xs={6}>
-                                    <FormGroup>
+                                    <FormGroup
+                                        validationState={this.props.validation}
+                                    >
                                         <FormControl
                                             type="text"
                                             componentClass={this.props.type}
-                                            style={{marginBottom:20}}
-                                            value={donation_amount}
+                                            style={{marginBottom: 20}}
+                                            value={this.props.value}
                                             placeholder={this.props.placeholder}
-                                            onChange={ev => this._handleInput('donation_amount', ev.target.value)}
+                                            onChange={ev => this._handleInput(ev.target.value)}
                                         />
+                                        {this.props.validation === 'error' &&
+                                        <HelpBlock>Invalid Address.</HelpBlock>}
                                     </FormGroup>
                                 </Col>
                             </Row>}
                             <Row className={"modal-buttons"}>
                                 <Col xs={6}>
-                                <Button className={`blue ${buttonsDisabled ? 'disabled' : ''}`}
-                                        onClick={this._closeModal}>
-                                    Cancel
-                                </Button>
-                                <Button className={`blue-full ${buttonsDisabled ? 'disabled' : ''}`}
-                                        onClick={this.props.action}>
-                                    {this.props.acceptButtonText? this.props.acceptButtonText :'Send'}
-                                </Button>
+                                    <Button className={`blue ${buttonsDisabled ? 'disabled' : ''}`}
+                                            onClick={this._closeModal}>
+                                        Cancel
+                                    </Button>
+                                    <Button className={`blue-full ${buttonsDisabled ? 'disabled' : ''}`}
+                                            onClick={this.props.action}>
+                                        {this.props.acceptButtonText ? this.props.acceptButtonText : 'Send'}
+                                    </Button>
                                 </Col>
                             </Row>
                         </Grid>

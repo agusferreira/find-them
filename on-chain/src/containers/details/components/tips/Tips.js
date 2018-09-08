@@ -43,11 +43,11 @@ class Tips extends Component {
                                 <Col xs={2}>
                                     <Col xs={3} className={'pointer'} onClick={() => this._showModal("accept")}>
                                         <MaterialIcon icon="check_circle_outline"
-                                                      style={{padding: 10}} size={'medium'} color="#32cd32"/>
+                                                      style={{padding: 5}} size={'medium'} color="#32cd32"/>
                                     </Col>
                                     <Col xs={3} className={'pointer'} onClick={() => this._showModal("reject")}>
                                         <MaterialIcon icon="highlight_off"
-                                                      style={{padding: 10}} size={'medium'} color="#FF4843"/>
+                                                      style={{padding: 5}} size={'medium'} color="#FF4843"/>
                                     </Col>
                                 </Col>}
                             </Row>

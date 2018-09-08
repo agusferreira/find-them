@@ -21,11 +21,11 @@ contract FindRequestFactory is Ownable, Migratable {
         // Init some variables here
     }
 
-    function createFindRequest(uint8 _age, string _location, string _lostDate, string _description) public payable {
+    function createFindRequest(uint8 _age, string _location, string _lost_date, string _description) public payable {
         // TODO > put some requirements for de parameters
 
         // Create new Find Request contract and get deployed address
-        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lostDate, _description);
+        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lost_date, _description);
 
         // Save new contract address and increment total counter
         deployedFindRequest.push(newFindRequest);
@@ -66,15 +66,23 @@ contract FindRequestFactory is Ownable, Migratable {
 
 contract FindRequest is Ownable {
     uint8 private age;
-    string private lostLocation;
-    string private lostDate;
+    string private location;
+    string private lost_date;
     string private description;
     address private curator;
     uint private initialIncentive;
-    string private state;
+    uint8 private findRequestState;
 
     string[] private knownLocations;
     hint[] private receivedHints;
+
+    // TODO Implement this contract state
+    enum FindRequestState {
+      Open, // 1
+      RedimingIncentives, // 2
+      RedimingBalances, // 3
+      Close // 4
+    }
 
     struct hint {
         string text;
@@ -83,16 +91,15 @@ contract FindRequest is Ownable {
     }
 
     // FindRequest constructor
-    constructor(address _owner, uint8 _age, string _location, string _lostDate, string _description) public payable {
+    constructor(address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
         owner = _owner;
         age = _age;
-        lostLocation = _location;
-        lostDate = _lostDate;
+        location = _location;
+        lost_date = _lost_date;
         description = _description;
         curator = msg.sender;
         initialIncentive = msg.value;
-        state = 'OPEN';
-        // Posible states: OPEN, REDEMING_INCENTIVES, REDEMING_BALANCE, CLOSE
+        findRequestState = 1;
     }
 
     modifier onlyHinter() {
@@ -100,22 +107,25 @@ contract FindRequest is Ownable {
     }
 
     modifier onlyCurator() {
+        require(curator == msg.sender);
         _;
     }
 
-    function getCurrentState() public view returns(string) {
-        return state;
+    function getCurrentState() public view returns(uint8) {
+        return findRequestState;
     }
 
     // Return a summary tuple of relevant variables of the factory contract
-    function getSummary() public view returns(address,uint,uint,string,string,string) {
+    function getSummary() public view returns(address,uint,uint,string,string,string,uint,uint) {
         return (
           owner,
           this.balance,
           age,
-          lostLocation,
-          lostDate,
-          description
+          location,
+          lost_date,
+          description,
+          knownLocations.length,
+          receivedHints.length
         );
     }
 
@@ -123,8 +133,9 @@ contract FindRequest is Ownable {
       return curator;
     }
 
-    function addKnownLocation(string location) public payable {
-
+    function addKnownLocation(string location) public payable onlyOwner {
+        require(!compare(location, ''));
+        knownLocations.push(location);
     }
 
     function getKnownLocations(uint knownLocationNumber) public view returns(string) {
@@ -133,35 +144,35 @@ contract FindRequest is Ownable {
     }
 
     function submitHint(string text) public payable {
-
+        // TODO Agus
     }
 
     function acceptHint(uint hintNumber) public view onlyOwner returns(bool) {
-
+        // TODO Agus
     }
 
     function rejecttHint(uint hintNumber) public view onlyOwner returns(bool) {
-
+        // TODO Agus
     }
 
     function closeFinding(string finalText) public payable onlyOwner {
-
+        require(findRequestState == 1); // 1 = Open
     }
 
     function redeemIncentive() public payable onlyHinter {
-
+        require(findRequestState == 2); // 2 = RedimingIncentives
     }
 
     function rejectIncentive() public payable onlyHinter {
-
+        require(findRequestState == 2); // 2 = RedimingIncentives
     }
 
     function redeemBalance() public payable onlyOwner {
-
+        require(findRequestState == 3); // 3 = RedimingBalances
     }
 
     function rejectBalance() public payable onlyOwner {
-
+        require(findRequestState == 3); // 3 = RedimingBalances
     }
 
     function cancelFindRequest() public payable onlyCurator {
@@ -180,5 +191,14 @@ contract FindRequest is Ownable {
 
     // Default anonymous function allow deposits to the contract
     function () public payable {
+    }
+
+    // Utility function to compare strings
+    function compare(string a, string b) internal returns (bool) {
+        if(bytes(a).length != bytes(b).length) {
+          return false;
+        } else {
+          return keccak256(a) == keccak256(b);
+        }
     }
 }
