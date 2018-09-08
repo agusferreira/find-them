@@ -77,6 +77,7 @@ contract FindRequest is Ownable {
 
     string[] private knownLocations;
     mapping(address => bool) acceptedHintsMap;
+    mapping(address => bool) allowedHintsWatchers;
     uint acceptedHints;
     uint acceptedHintsResponses;
 
@@ -87,16 +88,16 @@ contract FindRequest is Ownable {
     }
 
     Hint[] private receivedHints;
+    uint minimumTranferCost;
 
     // TODO Implement this contract state
     enum FindRequestState {
       Open, // 1
       RedeemingIncentives, // 2
       RedeemingBalances, // 3
-      Close // 4
+      Close, // 4
+      BalanceDistributed // 5
     }
-
-
 
     // FindRequest constructor
     constructor(address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
@@ -109,6 +110,7 @@ contract FindRequest is Ownable {
         initialIncentive = msg.value;
         findRequestState = 1;
         acceptedHints = 0;
+        minimumTranferCost = 200000;
     }
 
     modifier onlyHinter() {
@@ -117,6 +119,11 @@ contract FindRequest is Ownable {
 
     modifier onlyCurator() {
         require(curator == msg.sender);
+        _;
+    }
+
+    modifier ownerOrWatcher() {
+        require(_isOwnerOrWatcher());
         _;
     }
 
@@ -168,15 +175,12 @@ contract FindRequest is Ownable {
         require(_hint.state == 1);
         _hint.state = 2; // Accepted
 
-
         // Register accepted address and increment counter
         acceptedHints++;
         acceptedHintsMap[msg.sender] = true;
     }
 
-    function getHint(uint _hintNumber) public view onlyOwner returns(string,uint) {
-        // TODO Allow approved address see hints too
-
+    function getHint(uint _hintNumber) public view ownerOrWatcher returns(string,uint) {
         require(receivedHints.length > _hintNumber);
         Hint storage selectedHint = receivedHints[_hintNumber];
         return (
@@ -244,22 +248,68 @@ contract FindRequest is Ownable {
 
     function redeemBalance() public payable onlyOwner {
         require(findRequestState == 3); // 3 = RedimingBalances
+        uint amountToRedeem = 0;
+
+        // Check if the current balance (initial incentive + donations) is higher than initial incentive
+        if (this.balance > initialIncentive) {
+            // AVOID FRAUD VECTOR
+            // Only transfer 90% of the initial incentive
+            amountToRedeem = SafeMath.div(SafeMath.mul(initialIncentive, 90), 100);
+        } else {
+            amountToRedeem = this.balance;
+        }
+
+        // Always save this amount fix to make sure all transfers ends correctly
+        if (amountToRedeem > minimumTranferCost) {
+            // Transfer money to owner only if the balance covers the costs
+            owner.transfer(SafeMath.sub(amountToRedeem, minimumTranferCost));
+        }
+
+        // Change state to Closed (code: 4)
+        findRequestState = 4;
     }
 
     function rejectBalance() public payable onlyOwner {
         require(findRequestState == 3); // 3 = RedimingBalances
+
+        // Change state to Closed (code: 4)
+        findRequestState = 4;
     }
 
     function cancelFindRequest() public payable onlyCurator {
-
+        // Change state to Closed (code: 4)
+        findRequestState = 4;
     }
 
-    // Default function to withdraw balance from factory contract
-    // function withdraw(uint amount) public onlyOwner returns(bool) {
-    //     require(amount <= address(this).balance);
-    //     owner.transfer(amount);
-    //     return true;
-    // }
+    // The current balance is gonna be distributed when the contract
+    // get the confirmation that associated sentitive data was errased
+    // from the private chain or server
+    function executeDonationDistrubutionSystem(address beneficiaryA, address beneficiaryB) public payable onlyCurator {
+        require(findRequestState == 4); // 4 = Close
+        require(beneficiaryA != address(0));
+        require(beneficiaryB != address(0));
+        require(beneficiaryA != beneficiaryB);
+
+        // Share balance equaly between 2 other FindRequest
+        if (this.balance > minimumTranferCost) {
+
+            // Calculate amount to transfer
+            uint amountToDonate = SafeMath.sub(this.balance, minimumTranferCost);
+            uint amountPerBeneficiary = SafeMath.div(amountToDonate, 2);
+
+            // Make transfer
+            beneficiaryA.transfer(amountPerBeneficiary);
+            beneficiaryB.transfer(amountPerBeneficiary);
+        }
+
+        // Change state to BalanceDistributed (code: 5)
+        findRequestState = 5;
+    }
+
+    // Grant access to watchers
+    function grantAccessToWatchHints(address watcherAddress) public payable onlyOwner {
+        allowedHintsWatchers[watcherAddress] = true;
+    }
 
     function receiveDonations() public payable {
     }
@@ -271,9 +321,21 @@ contract FindRequest is Ownable {
     // Utility function to compare strings
     function compare(string a, string b) internal returns (bool) {
         if(bytes(a).length != bytes(b).length) {
-          return false;
+            return false;
         } else {
-          return keccak256(a) == keccak256(b);
+            return keccak256(a) == keccak256(b);
+        }
+    }
+
+    // Utility function to check if the sender is owner or watcher
+    function _isOwnerOrWatcher() private view returns(bool){
+        if (owner == msg.sender) {
+            return true;
+        } else {
+            if (allowedHintsWatchers[msg.sender] == true) {
+                return true;
+            }
+            return false;
         }
     }
 }
