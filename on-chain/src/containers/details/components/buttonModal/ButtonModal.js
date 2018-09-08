@@ -76,7 +76,10 @@ class ButtonModal extends Component {
                                         Cancel
                                     </Button>
                                     <Button className={`blue-full ${buttonsDisabled ? 'disabled' : ''}`}
-                                            onClick={this.props.action}>
+                                            onClick={() => {
+                                                this.setState({showModal: false});
+                                                this.props.action()
+                                            }}>
                                         {this.props.acceptButtonText ? this.props.acceptButtonText : 'Send'}
                                     </Button>
                                 </Col>

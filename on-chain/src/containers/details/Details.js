@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 
 import {Grid, Col, Row} from 'react-bootstrap';
-import PropTypes from 'prop-types';
 import {drizzleConnect} from 'drizzle-react';
 import axios from 'axios';
 
@@ -38,6 +38,12 @@ class Details extends Component {
         }
     }
 
+    componentDidMount(){
+        if(this.props.drizzleStatus.initialized){
+            this._fetchSummary();
+        }
+    }
+
     componentWillReceiveProps(nextProps) {
         if (!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized) {
             this._fetchSummary();
@@ -50,7 +56,7 @@ class Details extends Component {
         findRequest.methods.getSummary().call().then((data) => {
             this.setState({userBlockchain: data});
             console.log(data);
-            this._fetchOffChainData(data[0])
+            this._fetchOffChainData(this.state.address)
         })
     };
 
@@ -82,13 +88,18 @@ class Details extends Component {
         let {drizzle} = this.context;
         let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
         const accounts = await drizzle.web3.eth.getAccounts();
+        console.log(findRequest);
 
-        findRequest.web3.send({
-            from: accounts[0],
-            value: drizzle.web3.utils.toWei(amount, "ether")
-        }).then(function(result) {
-            console.log(result);
-        })
+        const stackId = await findRequest.methods.receiveDonations()
+            .send({
+                from: accounts[0],
+                value: drizzle.web3.utils.toWei(amount.toString(), "ether")
+            });
+
+        if(stackId.status){
+
+        }
+
     };
 
     _closeSearch = () => {

@@ -1,44 +1,29 @@
 {
   "contracts": {
     "FindRequestFactory": {
-      "address": "0x663c772e6182e086f6ba8727a6ff565c546296cb",
-      "constructorCode": "6080604052336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506124f3806100536000396000f300",
-      "bodyBytecodeHash": "88eb41e963263c25b4cf734db7a25bd63a5a8fe398c65967a2496847888b1868",
-      "bytecodeHash": "34149350d6122c622c596451e7c9d92e8afdb611aa6e6a3a25f02880eb9f3927"
+      "address": "0xfc2eee90c687deb2de27f77a945df0725e560f36",
+      "constructorCode": "6080604052336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550612ca1806100536000396000f300",
+      "bodyBytecodeHash": "1e88514c78dca17bc1e1c224e19168dd207543071952993ec2d585d49afee784",
+      "bytecodeHash": "72c00a30c75133829d342f512f15f11393431c90c41510554ff7144c87583e69"
     }
   },
   "proxies": {
     "FindRequestFactory": [
       {
-        "address": "0x9ba8e419f8b1293b13a6ff71e88a81c11bd2e15a",
+        "address": "0x5ddaf746d6efdc2cf49914f11bee3b72a854ed4a",
         "version": "0.1.0",
-        "implementation": "0xbe0b58f6e496b47d3fba7a0deb0b8cfd1288225e"
-      },
-      {
-        "address": "0x4fbd4f97690dfd92fbaa06441882e8361735d74b",
-        "version": "0.1.0",
-        "implementation": "0xbc50c821040048856a5126877d1574930055827e"
-      },
-      {
-        "address": "0xfd08da821bea968e34bd86bb6e67bdb92fa3f717",
-        "version": "0.1.0",
-        "implementation": "0xce9dbaf31bb7c23ae1b342a783662fc61f9b4512"
-      },
-      {
-        "address": "0x0a75b6caaa456d1465aa92a61a774ac8333843cb",
-        "version": "0.1.0",
-        "implementation": "0x663c772e6182e086f6ba8727a6ff565c546296cb"
+        "implementation": "0xfc2eee90c687deb2de27f77a945df0725e560f36"
       }
     ]
   },
   "app": {
-    "address": "0x8eb9c025aeb7d184ae8d80eba04fbb8355d1318a"
+    "address": "0xe4367e8e64f403df9794515ec55fc020e21bbadc"
   },
   "version": "0.1.0",
   "package": {
-    "address": "0x58154369f59502f082272a1272f7aea816f6f754"
+    "address": "0x8c737c905388cf2ebaa812466d41d05399e6ee4f"
   },
   "provider": {
-    "address": "0x5e50a578b4729dfeb7d2e82273d2d956b6961a3b"
+    "address": "0xbdbe60f20d1e4bffe943b40cb593b7e8020805c4"
   }
 }
