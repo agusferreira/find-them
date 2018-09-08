@@ -3,12 +3,15 @@ import PropTypes from 'prop-types';
 
 import {Grid, Col, Row} from 'react-bootstrap';
 import {drizzleConnect} from 'drizzle-react';
+import axios from 'axios';
 
 import './style.scss';
 import BasicDetails from "./components/basicDetails/BasicDetails";
 import Tips from "./components/tips/Tips";
 import ButtonModal from "./components/buttonModal/ButtonModal";
 import RequestContract from '../../../build/contracts/FindRequest.json';
+import urls from '../../utils/urls';
+import {dateFormat} from "../../utils/formatters";
 
 const requestABI = RequestContract["abi"];
 
@@ -19,12 +22,17 @@ class Details extends Component {
         super(props);
 
         let address = '';
-        if(props.match && props.match.params && props.match.params.address){
+        if (props.match && props.match.params && props.match.params.address) {
             address = props.match.params.address;
         }
 
         this.state = {
             address,
+            findRequest:false,
+            donation_amount:'',
+            hint:'',
+            userOffchain: '',
+            userBlockchain: '',
             errorAddress: null,
             hints: [{type: 'success', hint: "Waldo was seen in Full Node programming", isAdmin: false},
                 {type: 'info', hint: "Waldo was in ETHBerlin pitball", isAdmin: true}]
@@ -33,20 +41,40 @@ class Details extends Component {
 
     componentDidMount(){
         if(this.props.drizzleStatus.initialized){
-            this._fetchSummary();
+            let {drizzle} = this.context;
+            let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
+            this.setState({findRequest},this._fetchSummary);
         }
     }
 
-    componentWillReceiveProps(nextProps){
-        if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
-            this._fetchSummary();
+    componentWillReceiveProps(nextProps) {
+        if (!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized) {
+            let {drizzle} = this.context;
+            let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
+            this.setState({findRequest},this._fetchSummary);
+
         }
     }
 
     _fetchSummary = () => {
-        let {drizzle} = this.context;
-        let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
-        findRequest.methods.getSummary().call().then(console.log)
+        this.state.findRequest.methods.getSummary().call().then((data) => {
+            this.setState({userBlockchain: data});
+            console.log(data);
+            this._fetchOffChainData(this.state.address)
+        })
+    };
+
+    _fetchOffChainData = (address) => {
+        let REQUEST_URL = `${urls.API_ROOT}/api/v1/requests/${address}/`;
+        console.log(REQUEST_URL);
+        axios.get(REQUEST_URL, {})
+            .then((response) => {
+                this.setState({userOffchain: response.data})
+                console.log(response.data)
+            })
+            .catch((error) => {
+                console.log(error.response);
+            })
     };
 
     _rejectHint = (id) => {
@@ -56,10 +84,39 @@ class Details extends Component {
     _acceptHint = (id) => {
     };
 
-    _addWatcher = (address) => {
-        if(this.checkAddress()){
+    _sendHint = async (text) => {
+        console.log(text);
+        let {drizzle} = this.context;
+        let {findRequest}= this.state;
+        const accounts = await drizzle.web3.eth.getAccounts();
 
-        }else{
+        const stackId = await findRequest.methods.submitHint(text)
+            .send({
+                from: accounts[0]
+            });
+
+    };
+
+    _sendDonation = async (amount) => {
+        let {drizzle} = this.context;
+        let {findRequest}= this.state;
+        const accounts = await drizzle.web3.eth.getAccounts();
+
+        const stackId = await findRequest.methods.receiveDonations()
+            .send({
+                from: accounts[0],
+                value: drizzle.web3.utils.toWei(amount.toString(), "ether")
+            });
+
+    };
+
+    _closeSearch = () => {
+
+    };
+    _addWatcher = (address) => {
+        if (this.checkAddress()) {
+
+        } else {
             return false;
         }
     };
@@ -87,13 +144,17 @@ class Details extends Component {
     };
 
     render() {
-
+        let {userOffchain, userBlockchain} = this.state;
         return (
             <div className={"details-section"}>
-                <BasicDetails name={"Waldo Perez"} age={"12 years old"} location={"Görlitzer Park, Berlin"}
-                              date={"07/09/2018"} contact={"john.doe@gmail.com"}
-                              description={"1.80m, dark hair, blue eyes"}
-                              incentive={"12 ETH"}/>
+                {this.state.userOffchain &&
+                <BasicDetails myLatLng={userBlockchain[3]} photo={userOffchain.photo}
+                              actionClose={this._closeSearch} actionDonate={this._sendDonation} actionSendHint={this._sendHint}
+                              propDonate={"donation_amount"} propHint={"hint"} valueDonate={this.state.donation_amount} valueHint={this.state.hint}
+                              name={`${userOffchain.first_name + ` ` + userOffchain.last_name}`}
+                              age={`${userBlockchain[2]} years old`} location={"Görlitzer Park, Berlin"}
+                              date={dateFormat(userOffchain.lost_date)} contact={userOffchain.creator_email}
+                              description={userOffchain.description}/>}
                 <Grid>
                     <Row>
                         <Col xs={12}>
@@ -101,12 +162,12 @@ class Details extends Component {
                                 <Col xs={10}>
                                     <h2 className={"title"}>Hints</h2>
                                 </Col>
-                                <Col xs={2} style={{marginTop:50}}>
+                                <Col xs={2} style={{marginTop: 50}}>
                                     <ButtonModal username={this.props.name} buttonTitle={"Add watcher"} type={"input"}
                                                  action={this._addWatcher}
                                                  value={this.state.address}
                                                  validation={this.state.errorAddress}
-                                                 handleAction ={this._handleInput}
+                                                 handleAction={this._handleInput}
                                                  inputProp={"address"}
                                                  title={"Add new watcher"}
                                                  acceptButtonText={"Add"}
