@@ -1,31 +1,65 @@
 pragma solidity ^0.4.18;
 
 // DEV Imports - just to test contract in remix
-// import "github.com/OpenZeppelin/zeppelin-solidity/contracts/ownership/Ownable.sol";
-// import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
-// TODO: Fix this import, do not load in remix for some reason
-//import "https://github.com/zeppelinos/zos/blob/master/packages/lib/contracts/migrations/Migratable.sol";
+contract Ownable {
+  address public owner;
 
 
-import "zos-lib/contracts/migrations/Migratable.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
 
-contract FindRequestFactory is Ownable, Migratable {
+  /**
+   * @dev The Ownable constructor sets the original `owner` of the contract to the sender
+   * account.
+   */
+  function Ownable() public {
+    owner = msg.sender;
+  }
+
+
+  /**
+   * @dev Throws if called by any account other than the owner.
+   */
+  modifier onlyOwner() {
+    require(msg.sender == owner);
+    _;
+  }
+
+
+  /**
+   * @dev Allows the current owner to transfer control of the contract to a newOwner.
+   * @param newOwner The address to transfer ownership to.
+   */
+  function transferOwnership(address newOwner) public onlyOwner {
+    require(newOwner != address(0));
+    OwnershipTransferred(owner, newOwner);
+    owner = newOwner;
+  }
+
+}
+import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
+
+
+// import "zos-lib/contracts/migrations/Migratable.sol";
+// import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+// import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+
+
+contract FindRequestFactory is Ownable {
     address[] private deployedFindRequest;
 
     event newFindRequestCreated(address newAddress);
 
-    function initialize() public isInitializer("FindRequestFactory", "0")  {
+    function initialize() public { // isInitializer("FindRequestFactory", "0")  {
         // Init some variables here
     }
 
-    function createFindRequest(uint8 _age, string _location, string _lostDate, string _description) public payable {
+    function createFindRequest(uint8 _age, string _location, string _lost_date, string _description) public payable {
         // TODO > put some requirements for de parameters
 
         // Create new Find Request contract and get deployed address
-        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lostDate, _description);
+        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lost_date, _description);
 
         // Save new contract address and increment total counter
         deployedFindRequest.push(newFindRequest);
@@ -66,8 +100,8 @@ contract FindRequestFactory is Ownable, Migratable {
 
 contract FindRequest is Ownable {
     uint8 private age;
-    string private lostLocation;
-    string private lostDate;
+    string private location;
+    string private lost_date;
     string private description;
     address private curator;
     uint private initialIncentive;
@@ -83,11 +117,11 @@ contract FindRequest is Ownable {
     }
 
     // FindRequest constructor
-    constructor(address _owner, uint8 _age, string _location, string _lostDate, string _description) public payable {
+    constructor(address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
         owner = _owner;
         age = _age;
-        lostLocation = _location;
-        lostDate = _lostDate;
+        location = _location;
+        lost_date = _lost_date;
         description = _description;
         curator = msg.sender;
         initialIncentive = msg.value;
@@ -113,8 +147,8 @@ contract FindRequest is Ownable {
           owner,
           this.balance,
           age,
-          lostLocation,
-          lostDate,
+          location,
+          lost_date,
           description
         );
     }

@@ -1,0 +1,14 @@
+@import '../../../../styles/variables.scss';
+
+.custom-panel{
+  &.success{
+    border-left: 5px solid limegreen;
+
+  }
+  &.waiting{
+    background-color: $grey1;
+  }
+
+}
+
+.pointer{cursor: pointer;}
