@@ -24,7 +24,7 @@ class Home extends Component {
     }
 
     _fetchRequests = () => {
-        let URL = "http://www.mocky.io/v2/5b93873633000052002061e3";
+        let URL = "https://www.mocky.io/v2/5b93873633000052002061e3";
         axios.get(URL)
             .then(response => {
                this.setState({requests: response.data});
