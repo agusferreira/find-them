@@ -1,0 +1,40 @@
+@import '../../styles/variables.scss';
+
+.santander-button{
+  padding: 7px 30px;
+  background: $white;
+  font-size: 13px;
+  font-weight: bold;
+  margin-left: 10px;
+  box-shadow: none;
+  border-radius: 4px;
+  font-family: "Roboto-Bold", Helvetica, sans-serif;
+
+
+  &.blue{
+    color: #4435B5;
+    border: 1px solid #4435B5;
+
+    &:hover{
+      color: $white;
+      background: #4435B5;
+    }
+
+  }
+
+  &.blue-full {
+    color: $white;
+    border-color: #4435B5;
+    background: #4435B5;
+
+    &:hover {
+      color: $white;
+      border-color: #4435B5;
+      background: #4435B5;
+    }
+
+
+
+  }
+
+}

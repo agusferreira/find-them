@@ -1,0 +1,26 @@
+.details-basics-section{
+  flex-grow: 1;
+
+  .left-section{
+
+    padding: 3rem !important;
+
+  }
+
+  .data{
+    margin:20px;
+
+    & p{
+      color:#A4AEC8;
+    }
+  }
+
+  .username{
+    color:#4435B5;
+    font-size: 31px;
+    font-weight: 600;
+    letter-spacing: -0.04px;
+    line-height: 41px;
+  }
+
+}
