@@ -36,10 +36,9 @@ services:
     build: ./nginx
     container_name: ft-nginx
     environment:
-      DEFAULT_HOST: 'localhost'
+      DEFAULT_HOST: 'find-them.xivis.com'
     ports:
       - "8444:80"
-      - "443:443"
     volumes:
       - ./nginx/sites-enabled:/etc/nginx
       - /var/run/docker.sock:/tmp/docker.sock:ro
@@ -57,9 +56,9 @@ services:
   postgres:
     restart: always
     image: postgres:9.6
-    container_name: pz01
+    container_name: ft-postgres
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data/
       - /etc/timezone:/etc/timezone:ro

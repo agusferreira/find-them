@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import { drizzleConnect } from 'drizzle-react';
 
 import axios from 'axios';
 import {Grid, Row, Col} from 'react-bootstrap';
@@ -35,6 +36,7 @@ class Home extends Component {
     render() {
 
         let {requests} = this.state;
+        console.log(this.props);
 
         return (
             <div>
@@ -60,5 +62,12 @@ class Home extends Component {
     }
 
 }
+const mapStateToProps = state => {
+    return {
+        drizzleStatus: state.drizzleStatus,
+        FindRequestFactory: state.contracts.FindRequestFactory
+    }
+}
 
-export default Home;
+const HomeContainer = drizzleConnect(Home, mapStateToProps);
+export default HomeContainer;
