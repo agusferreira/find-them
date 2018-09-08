@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 
 import './style.scss';
+import BasicDetails from "./components/basicDetails/BasicDetails";
 
 class Details extends Component {
 
@@ -8,9 +9,7 @@ class Details extends Component {
 
         return (
             <div>
-                <h1>
-                    DETAIL
-                </h1>
+                <BasicDetails/>
 
             </div>
         )
