@@ -1,10 +1,10 @@
 {
   "contracts": {
     "FindRequestFactory": {
-      "address": "0xbf313b976e06064f036c11c23f2a064960385a10",
-      "constructorCode": "6080604052336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550612298806100536000396000f300",
-      "bodyBytecodeHash": "aa5e0bd8d40a5ad439d03bf582152a713b62300fc4f92f634304343073f4607d",
-      "bytecodeHash": "b83986740b815b69bcf769b65ca6fea8be20d94607a94d61d716d8a72be1d83f"
+      "address": "0x85149472e4996f45de07b55b2578cba825320ab0",
+      "constructorCode": "6080604052336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506124f3806100536000396000f300",
+      "bodyBytecodeHash": "88eb41e963263c25b4cf734db7a25bd63a5a8fe398c65967a2496847888b1868",
+      "bytecodeHash": "34149350d6122c622c596451e7c9d92e8afdb611aa6e6a3a25f02880eb9f3927"
     }
   },
   "proxies": {
@@ -28,6 +28,11 @@
         "address": "0x82bed1ae921bc71d2eb2c0311d430dba5464efc5",
         "version": "0.1.0",
         "implementation": "0xbf313b976e06064f036c11c23f2a064960385a10"
+      },
+      {
+        "address": "0xd34b0055d2465bc53ceef3dcd96424870d98e849",
+        "version": "0.1.0",
+        "implementation": "0x85149472e4996f45de07b55b2578cba825320ab0"
       }
     ]
   },
