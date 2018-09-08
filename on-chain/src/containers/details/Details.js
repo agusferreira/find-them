@@ -8,19 +8,40 @@ import './style.scss';
 import BasicDetails from "./components/basicDetails/BasicDetails";
 import Tips from "./components/tips/Tips";
 import ButtonModal from "./components/buttonModal/ButtonModal";
+import RequestContract from '../../../build/contracts/FindRequest.json';
+
+const requestABI = RequestContract["abi"];
 
 
 class Details extends Component {
 
     constructor(props, context) {
         super(props);
+
+        let address = '';
+        if(props.match && props.match.params && props.match.params.address){
+            address = props.match.params.address;
+        }
+
         this.state = {
-            address:'',
-            errorAddress:null,
+            address,
+            errorAddress: null,
             hints: [{type: 'success', hint: "Waldo was seen in Full Node programming", isAdmin: false},
                 {type: 'info', hint: "Waldo was in ETHBerlin pitball", isAdmin: true}]
         }
     }
+
+    componentWillReceiveProps(nextProps){
+        if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
+            this._fetchSummary();
+        }
+    }
+
+    _fetchSummary = () => {
+        let {drizzle} = this.context;
+        let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
+        findRequest.methods.getSummary().call().then(console.log)
+    };
 
     _rejectHint = (id) => {
 

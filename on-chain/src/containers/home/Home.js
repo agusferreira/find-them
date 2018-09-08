@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
+import { drizzleConnect } from 'drizzle-react';
 
 import axios from 'axios';
 import {Grid, Row, Col} from 'react-bootstrap';
@@ -11,7 +13,7 @@ import './styles.scss';
 
 class Home extends Component {
 
-    constructor(props) {
+    constructor(props, context) {
         super(props);
 
         this.state = {
@@ -24,6 +26,12 @@ class Home extends Component {
         this._fetchRequests();
     }
 
+    componentWillReceiveProps(nextProps){
+        if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
+            this._fetchSummary();
+        }
+    }
+
     _fetchRequests = () => {
         let URL = `${urls.API_ROOT}/api/v1/requests/`;
         axios.get(URL)
@@ -32,6 +40,15 @@ class Home extends Component {
             });
     };
 
+    _fetchSummary = () => {
+        let {drizzle} = this.context;
+        drizzle.contracts.FindRequestFactory.methods.getSummary().call()
+            .then(response => {
+                console.log(response);
+            });
+        // drizzle.contracts.FindRequestFactory.methods.getFindRequest(0).call().then(console.log);
+        // drizzle.contracts.FindRequestFactory.methods.getFindRequest(1).call().then(console.log);
+    };
 
     render() {
         let {requests} = this.state;
@@ -65,4 +82,17 @@ class Home extends Component {
 
 }
 
-export default Home;
+Home.contextTypes = {
+    drizzle: PropTypes.object
+};
+
+const mapStateToProps = state => {
+    return {
+        web3: state.web3,
+        drizzleStatus: state.drizzleStatus,
+        FindRequestFactory: state.contracts.FindRequestFactory
+    }
+};
+
+const HomeContainer = drizzleConnect(Home, mapStateToProps);
+export default HomeContainer;

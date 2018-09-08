@@ -103,23 +103,6 @@ class RequestForm extends Component{
         let location = `${lastSeenLocation.lat},${lastSeenLocation.lng}`;
         let lastDate = `${lastSeenDate}`;
 
-        // TODO - MOVE
-
-        const formData = new FormData();
-        formData.append('photo', photo);
-        formData.set('first_name', first_name);
-        formData.set('last_name', last_name);
-        formData.set('identifier', identifier);
-        formData.set('creator_email', email);
-        formData.set('lost_date', lastDate);
-        formData.set('location', location);
-        formData.set('description', description);
-        formData.set('creator_address', accounts[0]);
-        formData.set('contract_deployed_address', accounts[0]);
-        formData.set('finished', false);
-        this._postToOffChain(formData);
-        return false;
-
         if (drizzleStatus.initialized) {
             const stackId = await drizzle.contracts.FindRequestFactory.methods.createFindRequest(
                     age,
@@ -135,7 +118,19 @@ class RequestForm extends Component{
             if(stackId.status){
                 // this.setState({button_disabled:false});
                 // TODO - Post result to server
-                // this.postData();
+                const formData = new FormData();
+                formData.append('photo', photo);
+                formData.set('first_name', first_name);
+                formData.set('last_name', last_name);
+                formData.set('identifier', identifier);
+                formData.set('creator_email', email);
+                formData.set('lost_date', lastDate);
+                formData.set('location', location);
+                formData.set('description', description);
+                formData.set('creator_address', accounts[0]);
+                formData.set('contract_deployed_address', accounts[0]);
+                formData.set('finished', false);
+                this._postToOffChain(formData);
             }
 
             //Use the dataKey to display the transaction status.
@@ -153,7 +148,7 @@ class RequestForm extends Component{
         const URL = `${urls.API_ROOT}/api/v1/requests/`;
         axios.post(URL, form, {'Content-Type': 'multipart/form-data'})
             .then(response => {
-
+                console.log(response);
             })
             .catch(e => {
                 console.log(e);

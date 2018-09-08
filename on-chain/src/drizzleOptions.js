@@ -1,5 +1,4 @@
 import FindRequestFactory from '../build/contracts/FindRequestFactory';
-import FindRequest from '../build/contracts/FindRequest';
 
 const drizzleOptions = {
     web3: {
@@ -10,6 +9,7 @@ const drizzleOptions = {
         }
     },
     events: {
+        FindRequestFactory: ['newFindRequestCreated']
     },
     contracts: [
         FindRequestFactory,
