@@ -7,8 +7,8 @@ import {
     ControlLabel, FormControl, Form, HelpBlock
 } from 'react-bootstrap';
 import Datepicker from 'react-16-bootstrap-date-picker';
-import {BasicGoogleMap} from "../../../components/map/Map";
 
+import {BasicGoogleMap} from "../../../components/map/Map";
 import Button from "../../../components/button/Button";
 
 class RequestForm extends Component{
@@ -127,7 +127,7 @@ class RequestForm extends Component{
             myLatLng, ajaxInProgress
         } = this.state;
         let buttonsDisabled = ajaxInProgress;
-        
+
         return (
             <Grid className={'request-form'}>
                 <Row>
