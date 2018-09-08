@@ -19,8 +19,12 @@ class RequestForFindSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RequestForFind
-        fields = ("identifier", "first_name", "last_name", "photo", "description", "creator_address", "creator_email",
-                  "contract_deployed_address", "finished")
+        fields = (
+            "identifier", "first_name", "last_name", "photo",
+            "description", "creator_address", "creator_email",
+            "contract_deployed_address", "finished",
+            "location", "lost_date"
+        )
 
     def create(self, validated_data):
         _rff = RequestForFind()
