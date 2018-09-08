@@ -1,3 +1,4 @@
+// Adding this copy of the file "tuffle-config.js" just for knows issues in Windows support
 'use strict';
 
 // Init & set infure provider
