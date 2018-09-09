@@ -147,7 +147,7 @@ class LocationForm extends Component{
         return (
             <div className={'location-form'}>
                 <Button onClick={() => this.setState({show: true})}>
-                    Add New Location
+                    Add Location
                 </Button>
                 <Modal show={this.state.show} onHide={this._handleClose} className={'request-form-modal'}>
                     <Modal.Header closeButton>
