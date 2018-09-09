@@ -18,6 +18,7 @@ class BasicDetails extends Component {
         this.state={
             donation_amount:'',
             hint:'',
+            comment:''
         }
     }
 
@@ -64,9 +65,14 @@ class BasicDetails extends Component {
                         </Col>
                         <Col xs={12} md={6} className={"button-container text-right"}>
                             <ButtonModal username={this.props.name} buttonTitle={"Close Search"} className={'aqua-full'}
-                                         action={this.props.actionClose}
-                                         textContent={`Are you sure you want to close the search of ${this.props.name}?`}
-                                         title={"Close Search"}
+                                         action={()=>this.props.actionClose(this.state.comment)}
+                                         textContent={`Are you sure you want to close the search of ${this.props.name}?.
+                                         If you want you can enter a comment for all the people who helped you.`}
+                                         title={"Close Search"} type={"textarea"}
+                                         inputProp={'comment'}
+                                         handleAction={this._handleInput}
+                                         placeholder={"Comment"}
+                                         value={this.state.comment}
                                          acceptButtonText={"Close"}/>
                             <ButtonModal username={this.props.name} buttonTitle={"Give a Hint"} type={"textarea"}
                                          action={()=>this.props.actionSendHint(this.state.hint)}
