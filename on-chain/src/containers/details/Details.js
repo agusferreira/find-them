@@ -13,6 +13,8 @@ import LocationForm from "./components/locationForm/LocationForm";
 import RequestContract from '../../contracts/FindRequest.json';
 import urls from '../../utils/urls';
 import {dateFormat} from "../../utils/formatters";
+import LoadingPageBlockchain from "../../components/loading/LoadingPageBlockchain";
+import Header from "../../components/header/Header";
 
 const requestABI = RequestContract["abi"];
 
@@ -29,15 +31,27 @@ class Details extends Component {
 
         this.state = {
             address,
+            account: '',
+            status: 1,
             findRequest: false,
+            isOwner: false,
             donation_amount: '',
             hint: '',
             userOffchain: '',
             userBlockchain: '',
             newWatcher: '',
             errorAddress: null,
-
         }
+
+        /*
+        * Status
+        * 1 Open
+        * 2 Redeeming Incentives
+        * 3 Redeeming Balance
+        * 4 Closed
+        * 5 Balance Distributes
+        * */
+
     }
 
     componentDidMount() {
@@ -57,13 +71,33 @@ class Details extends Component {
         }
     }
 
-    _fetchSummary = () => {
-        this.state.findRequest.methods.getSummary().call().then((data) => {
-            this.setState({userBlockchain: data}, this._fetchHints);
-            // console.log(data);
-            this._fetchOffChainData(this.state.address);
+    _fetchSummary = async () => {
+        let data = await this.state.findRequest.methods.getSummary().call();
+        let status = await this.state.findRequest.methods.getCurrentState().call();
+        /*
+        * Summary
+        * [0] owner
+        * [1] balance
+        * [2] owner
+        * [3] age
+        * [4] location
+        * [5] date
+        * [6] description
+        * [7] locationsLength
+        * [8] hintsLength
+        * */
 
-        })
+        let {drizzle} = this.context;
+        let accounts = await drizzle.web3.eth.getAccounts();
+        if(accounts){
+            this.setState({
+                userBlockchain: data,
+                status: parseInt(status, 10),
+                account: accounts[0],
+                isOwner: (accounts[0].toString().toUpperCase() === data[0].toString().toUpperCase())
+            }, this._fetchHints);
+            this._fetchOffChainData(this.state.address);
+        }
     };
 
     _fetchOffChainData = (address) => {
@@ -164,7 +198,6 @@ class Details extends Component {
     checkAddress = () => {
         let {drizzle} = this.context;
         let isAddress = drizzle.web3.utils.isAddress(this.state.newWatcher);
-        console.log(this.state.newWatcher, ': ', isAddress);
         if (isAddress) {
             this.setState({errorAddress: 'success'});
             return true;
@@ -186,7 +219,39 @@ class Details extends Component {
     };
 
     render() {
-        let {userOffchain, userBlockchain} = this.state;
+        let {userOffchain, userBlockchain, status, isOwner} = this.state;
+
+        if(!this.props.drizzleStatus.initialized || !userOffchain || !userBlockchain){
+            return (
+                <div>
+                    <Header />
+                    <LoadingPageBlockchain />
+                </div>
+            );
+        }
+
+        if(status === 1){
+            return (
+                <div className={"details-section"}>
+                    <BasicDetails
+                        blockChainData={userBlockchain}
+                        otherData={userOffchain}
+                        isOwner={isOwner}
+
+                        propDonate={"donation_amount"}
+                        propHint={"hint"}
+                        valueDonate={this.state.donation_amount}
+                        valueHint={this.state.hint}
+
+                        actionClose={this._closeSearch}
+                        actionDonate={this._sendDonation}
+                        actionSendHint={this._sendHint}
+                    />
+                </div>
+            );
+        }
+
+
         return (
             <div className={"details-section"}>
                 {this.state.userOffchain &&

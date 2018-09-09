@@ -1,14 +1,8 @@
 import React from 'react'
 import Lottie from 'react-lottie';
 import * as animationData from '../../assets/animation'
-import Button from "../button/Button";
 
 export default class Loading extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {isStopped: false, isPaused: false};
-    }
 
     render() {
 
