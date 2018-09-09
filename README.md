@@ -20,7 +20,7 @@ findthem.network is a decentralized network for finding missing children. It giv
 - Approved collaborators can redeem the incentive or donate it to the network.
 - Automatic distribution of the balance to other geographically close cases.
 
-Find the project deployed on the Rinkeby Network at https://foundthem.network
+Find the project deployed on the Rinkeby Network at https://findthem.network
 
 ## Accomplishments that we're proud of
 
