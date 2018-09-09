@@ -179,7 +179,16 @@ class Details extends Component {
 
     };
 
-    _closeSearch = () => {
+    _closeSearch = async (comment) => {
+        console.log(comment);
+        let {drizzle} = this.context;
+        let {findRequest} = this.state;
+        const accounts = await drizzle.web3.eth.getAccounts();
+
+        const stackId = await findRequest.methods.closeFinding(comment)
+            .send({
+                from: accounts[0]
+            });
 
     };
 
@@ -209,7 +218,7 @@ class Details extends Component {
 
     _renderHints = () => {
         return this.state.hints.map((hint, index) => {
-            return <Tips key={index} type={hint[1]} hint={hint[0]} id={index}
+            return <Tips key={index} type={parseInt(hint[1],10)} hint={hint[0]} id={index}
                          editable={true} acceptAction={this._acceptHint} rejectAction={this._rejectHint}/>
         })
     };
@@ -250,8 +259,7 @@ class Details extends Component {
                 </div>
             );
         }
-
-
+        
         return (
             <div className={"details-section"}>
                 {this.state.userOffchain &&

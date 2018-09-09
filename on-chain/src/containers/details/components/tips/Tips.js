@@ -29,17 +29,14 @@ class Tips extends Component {
     render() {
         let {showModal, action, buttonsDisabled} = this.state;
         let modalContent = action !== '' ? `Are you sure you want to ${action} this hint?` : '';
-        let type = "info";
-        switch (this.props.type) {
-            case 1:
-                type = "info";
-                break;
-            case 2:
-                type = "success";
-                break;
-            case 3:
-                type = "error";
-                break;
+        let type='';
+        if(this.props.type===1){
+            type = "info";
+        }else if(this.props.type===2){
+            type = "success";
+        }else{
+            type = "danger";
+
         }
 
         return (
@@ -51,7 +48,7 @@ class Tips extends Component {
                                 <Col xs={10}>
                                     <p style={{fontSize: 18, padding: 14}}>{this.props.hint}</p>
                                 </Col>
-                                {this.props.editable &&
+                                {this.props.type===1 &&
                                 <Col xs={2}>
                                     <Col xs={3} className={'pointer'} onClick={() => this._showModal("accept")}>
                                         <MaterialIcon icon="check_circle_outline"
@@ -75,6 +72,7 @@ class Tips extends Component {
                                     <p>{modalContent}</p>
                                 </Col>
                             </Row>
+
                             <Row className={"modal-buttons"}>
                                 <Col xs={6}>
                                     <Button className={`blue ${buttonsDisabled ? 'disabled' : ''}`}
