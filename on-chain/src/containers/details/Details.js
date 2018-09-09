@@ -168,7 +168,7 @@ class Details extends Component {
 
     _renderHints = () => {
         return this.state.hints.map((hint, index) => {
-            return <Tips key={index} type={hint[1]} hint={hint[0]} id={index}
+            return <Tips key={index} type={parseInt(hint[1],10)} hint={hint[0]} id={index}
                          editable={true} acceptAction={this._acceptHint} rejectAction={this._rejectHint}/>
         })
     };
