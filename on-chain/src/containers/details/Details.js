@@ -405,7 +405,7 @@ class Details extends Component {
         }
 
         // Redeeming balance
-        if(status < 5){
+        if(status === 3){
             return (
                 <div className={"details-section"}>
                     <Header/>
