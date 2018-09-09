@@ -102,6 +102,7 @@ class ContractService:
         except:
             index_address = None
 
+        print(index)
         print(index_address)
         print(request_for_find.contract_deployed_address)
         if not index_address or (index_address != request_for_find.contract_deployed_address):

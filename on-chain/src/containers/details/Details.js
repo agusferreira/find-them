@@ -9,7 +9,8 @@ import './style.scss';
 import BasicDetails from "./components/basicDetails/BasicDetails";
 import Tips from "./components/tips/Tips";
 import ButtonModal from "./components/buttonModal/ButtonModal";
-import RequestContract from '../../../build/contracts/FindRequest.json';
+import LocationForm from "./components/locationForm/LocationForm";
+import RequestContract from '../../contracts/FindRequest.json';
 import urls from '../../utils/urls';
 import {dateFormat} from "../../utils/formatters";
 
@@ -28,66 +29,99 @@ class Details extends Component {
 
         this.state = {
             address,
-            findRequest:false,
-            donation_amount:'',
-            hint:'',
+            findRequest: false,
+            donation_amount: '',
+            hint: '',
             userOffchain: '',
             userBlockchain: '',
             errorAddress: null,
-            hints: [{type: 'success', hint: "Waldo was seen in Full Node programming", isAdmin: false},
-                {type: 'info', hint: "Waldo was in ETHBerlin pitball", isAdmin: true}]
+
         }
     }
 
-    componentDidMount(){
-        if(this.props.drizzleStatus.initialized){
+    componentDidMount() {
+        if (this.props.drizzleStatus.initialized) {
             let {drizzle} = this.context;
             let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
-            this.setState({findRequest},this._fetchSummary);
+            this.setState({findRequest}, this._fetchSummary);
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized) {
+    UNSAFE_componentWillReceiveProps(nextProps){
+        if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
             let {drizzle} = this.context;
             let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
-            this.setState({findRequest},this._fetchSummary);
+            this.setState({findRequest}, this._fetchSummary);
 
         }
     }
 
     _fetchSummary = () => {
         this.state.findRequest.methods.getSummary().call().then((data) => {
-            this.setState({userBlockchain: data});
-            console.log(data);
-            this._fetchOffChainData(this.state.address)
+            this.setState({userBlockchain: data}, this._fetchHints);
+            // console.log(data);
+            this._fetchOffChainData(this.state.address);
+
         })
     };
 
     _fetchOffChainData = (address) => {
         let REQUEST_URL = `${urls.API_ROOT}/api/v1/requests/${address}/`;
-        console.log(REQUEST_URL);
         axios.get(REQUEST_URL, {})
             .then((response) => {
                 this.setState({userOffchain: response.data})
-                console.log(response.data)
+                // console.log(response.data)
             })
             .catch((error) => {
                 console.log(error.response);
             })
     };
 
-    _rejectHint = (id) => {
+    _fetchHints = async () => {
 
+        let {drizzle} = this.context;
+        let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
+        const accounts = await drizzle.web3.eth.getAccounts();
+        let hintsLength = this.state.userBlockchain[7];
+        let hints = [];
+
+        for (let i = 0; i < hintsLength; i++) {
+            let hint = await findRequest.methods.getHint(i).call({from: accounts[0]});
+            console.log(hint);
+            hints.push(hint);
+        }
+        console.log(hints);
+        this.setState({hints});
     };
 
-    _acceptHint = (id) => {
+    _rejectHint = async (id) => {
+        console.log(id);
+        let {drizzle} = this.context;
+        let {findRequest} = this.state;
+        const accounts = await drizzle.web3.eth.getAccounts();
+
+        const stackId = await findRequest.methods.rejectHint(id)
+            .send({
+                from: accounts[0]
+            });
+    };
+
+    _acceptHint = async (id) => {
+        console.log(id);
+        let {drizzle} = this.context;
+        let {findRequest} = this.state;
+        const accounts = await drizzle.web3.eth.getAccounts();
+
+        const stackId = await findRequest.methods.acceptHint(id)
+            .send({
+                from: accounts[0]
+            });
     };
 
     _sendHint = async (text) => {
         console.log(text);
         let {drizzle} = this.context;
-        let {findRequest}= this.state;
+        let {findRequest} = this.state;
         const accounts = await drizzle.web3.eth.getAccounts();
 
         const stackId = await findRequest.methods.submitHint(text)
@@ -99,7 +133,7 @@ class Details extends Component {
 
     _sendDonation = async (amount) => {
         let {drizzle} = this.context;
-        let {findRequest}= this.state;
+        let {findRequest} = this.state;
         const accounts = await drizzle.web3.eth.getAccounts();
 
         const stackId = await findRequest.methods.receiveDonations()
@@ -134,8 +168,8 @@ class Details extends Component {
 
     _renderHints = () => {
         return this.state.hints.map((hint, index) => {
-            return <Tips key={hint.hint} type={hint.type} title={`Hint ${index + 1}`} hint={hint.hint}
-                         editable={hint.isAdmin} acceptAction={this._acceptHint} rejectAction={this._rejectHint}/>
+            return <Tips key={index} type={hint[1]} hint={hint[0]} id={index}
+                         editable={true} acceptAction={this._acceptHint} rejectAction={this._rejectHint}/>
         })
     };
 
@@ -149,8 +183,10 @@ class Details extends Component {
             <div className={"details-section"}>
                 {this.state.userOffchain &&
                 <BasicDetails myLatLng={userBlockchain[3]} photo={userOffchain.photo}
-                              actionClose={this._closeSearch} actionDonate={this._sendDonation} actionSendHint={this._sendHint}
-                              propDonate={"donation_amount"} propHint={"hint"} valueDonate={this.state.donation_amount} valueHint={this.state.hint}
+                              actionClose={this._closeSearch} actionDonate={this._sendDonation}
+                              actionSendHint={this._sendHint}
+                              propDonate={"donation_amount"} propHint={"hint"} valueDonate={this.state.donation_amount}
+                              valueHint={this.state.hint}
                               name={`${userOffchain.first_name + ` ` + userOffchain.last_name}`}
                               age={`${userBlockchain[2]} years old`} location={"Görlitzer Park, Berlin"}
                               date={dateFormat(userOffchain.lost_date)} contact={userOffchain.creator_email}
@@ -175,10 +211,12 @@ class Details extends Component {
                                                  able to watch all the hints available. Are you sure you want to proceed?`}/>
                                 </Col>
                             </Row>
-                            {this._renderHints()}
+                            {this.state.hints &&
+                            this._renderHints()}
                         </Col>
                     </Row>
                 </Grid>
+                <LocationForm address={this.state.address}/>
             </div>
         )
 

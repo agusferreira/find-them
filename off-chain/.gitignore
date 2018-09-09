@@ -1,1 +1,4 @@
 .idea/
+
+webproject/webproject/local_settings.py
+.env

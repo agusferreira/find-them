@@ -1,19 +1,12 @@
 pragma solidity ^0.4.18;
 
-// DEV Imports - just to test contract in remix
-// import "github.com/OpenZeppelin/zeppelin-solidity/contracts/ownership/Ownable.sol";
-// import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
-// TODO: Fix this import, do not load in remix for some reason
-//import "https://github.com/zeppelinos/zos/blob/master/packages/lib/contracts/migrations/Migratable.sol";
-
-
 import "zos-lib/contracts/migrations/Migratable.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-
 contract FindRequestFactory is Ownable, Migratable {
     address[] private deployedFindRequest;
+    mapping(address => bool) private deployedFindRequestMap;
 
     event newFindRequestCreated(address newAddress);
 
@@ -21,20 +14,47 @@ contract FindRequestFactory is Ownable, Migratable {
         // Init some variables here
     }
 
-    function createFindRequest(uint8 _age, string _location, string _lost_date, string _description) public payable {
-        // TODO > put some requirements for de parameters
+    function createFindRequest(uint8 _age, string _location, string _lostDate, string _description) public payable {
+        require(_age < 150);
+        require(!compare(_location, ""));
+        require(!compare(_lostDate, ""));
+        require(!compare(_description, ""));
 
         // Create new Find Request contract and get deployed address
-        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lost_date, _description);
+        address newFindRequest = new FindRequest(msg.sender, _age, _location, _lostDate, _description);
 
         // Save new contract address and increment total counter
         deployedFindRequest.push(newFindRequest);
+        deployedFindRequestMap[newFindRequest] = true;
 
         // Transfer the created contract the initial amount
         newFindRequest.transfer(msg.value);
 
         // Send Find Request Created event
         emit newFindRequestCreated(newFindRequest);
+    }
+
+    function distributeBalance(address donator, address beneficiaryA, address beneficiaryB) public payable onlyOwner {
+        // Verify that all address are deployed by the factory
+        require(deployedFindRequestMap[donator]);
+        require(deployedFindRequestMap[beneficiaryA]);
+        require(deployedFindRequestMap[beneficiaryB]);
+        require(beneficiaryA != beneficiaryB);
+
+        // Verify state of FindRequest constract "donator"
+        FindRequest findRequestFrom = FindRequest(donator);
+        require(findRequestFrom.getCurrentState() == 4); // 4 = close
+
+        // Verify state of FindRequest constract "A"
+        FindRequest findRequestA = FindRequest(beneficiaryA);
+        require(findRequestA.getCurrentState() == 1); // 1 = open
+
+        // Verify state of FindRequest constract "B"
+        FindRequest findRequestB = FindRequest(beneficiaryB);
+        require(findRequestB.getCurrentState() == 1); // 1 = open
+
+        // Trigger distributeBalance on "close" contract
+        findRequestFrom.executeDonationDistrubutionSystem(beneficiaryA, beneficiaryB);
     }
 
 
@@ -47,10 +67,12 @@ contract FindRequestFactory is Ownable, Migratable {
     function getSummary() public view returns (address, uint, uint) {
         return (
           owner,
-          this.balance,
+          address(this).balance,
           deployedFindRequest.length
         );
     }
+
+
 
     // Default function to withdraw balance from factory contract
     function withdraw(uint amount) public onlyOwner returns(bool) {
@@ -62,12 +84,21 @@ contract FindRequestFactory is Ownable, Migratable {
     // Default anonymous function allow deposits to the contract
     function () public payable {
     }
+
+    // Utility function to compare strings
+    function compare(string a, string b) private pure returns (bool) {
+        if(bytes(a).length != bytes(b).length) {
+            return false;
+        } else {
+            return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
+        }
+    }
 }
 
 contract FindRequest is Ownable {
     uint8 private age;
     string private location;
-    string private lost_date;
+    string private lostDate;
     string private description;
     address private curator;
     uint private initialIncentive;
@@ -77,38 +108,45 @@ contract FindRequest is Ownable {
 
     string[] private knownLocations;
     mapping(address => bool) acceptedHintsMap;
+    mapping(address => bool) allowedHintsWatchers;
     uint acceptedHints;
     uint acceptedHintsResponses;
 
     struct Hint {
         string text;
         uint8 state;
-        // TODO Maybe add here a posible location parameters
     }
 
     Hint[] private receivedHints;
+    uint minimumTranferCost;
 
-    // TODO Implement this contract state
+    // Contract States Reference
     enum FindRequestState {
       Open, // 1
       RedeemingIncentives, // 2
       RedeemingBalances, // 3
-      Close // 4
+      Close, // 4
+      BalanceDistributed // 5
     }
 
-
-
     // FindRequest constructor
-    constructor(address _owner, uint8 _age, string _location, string _lost_date, string _description) public payable {
+    constructor(address _owner, uint8 _age, string _location, string _lostDate, string _description) public payable {
+        require(_owner != address(0));
+        require(_age < 150);
+        require(!compare(_location, ""));
+        require(!compare(_lostDate, ""));
+        require(!compare(_description, ""));
+
         owner = _owner;
         age = _age;
         location = _location;
-        lost_date = _lost_date;
+        lostDate = _lostDate;
         description = _description;
         curator = msg.sender;
         initialIncentive = msg.value;
         findRequestState = 1;
         acceptedHints = 0;
+        minimumTranferCost = 200000;
     }
 
     modifier onlyHinter() {
@@ -120,6 +158,11 @@ contract FindRequest is Ownable {
         _;
     }
 
+    modifier ownerOrWatcher() {
+        require(_isOwnerOrWatcher());
+        _;
+    }
+
     function getCurrentState() public view returns(uint8) {
         return findRequestState;
     }
@@ -128,10 +171,10 @@ contract FindRequest is Ownable {
     function getSummary() public view returns(address,uint,uint,string,string,string,uint,uint) {
         return (
           owner,
-          this.balance,
+          address(this).balance,
           age,
           location,
-          lost_date,
+          lostDate,
           description,
           knownLocations.length,
           receivedHints.length
@@ -142,9 +185,9 @@ contract FindRequest is Ownable {
       return curator;
     }
 
-    function addKnownLocation(string location) public payable onlyOwner {
-        require(!compare(location, ""));
-        knownLocations.push(location);
+    function addKnownLocation(string _location) public payable onlyOwner {
+        require(!compare(_location, ""));
+        knownLocations.push(_location);
     }
 
     function getKnownLocations(uint knownLocationNumber) public view returns(string) {
@@ -168,15 +211,12 @@ contract FindRequest is Ownable {
         require(_hint.state == 1);
         _hint.state = 2; // Accepted
 
-
         // Register accepted address and increment counter
         acceptedHints++;
         acceptedHintsMap[msg.sender] = true;
     }
 
-    function getHint(uint _hintNumber) public view onlyOwner returns(string,uint) {
-        // TODO Allow approved address see hints too
-
+    function getHint(uint _hintNumber) public view ownerOrWatcher returns(string,uint) {
         require(receivedHints.length > _hintNumber);
         Hint storage selectedHint = receivedHints[_hintNumber];
         return (
@@ -200,7 +240,7 @@ contract FindRequest is Ownable {
         // TODO Pay gas cost of all Hints received (accepted or not)
 
         // Calculate max incentive to Redeem (90% of total incentive stored)
-        uint totalIncentiveToRedeem = SafeMath.div(SafeMath.mul(this.balance, 90), 100);
+        uint totalIncentiveToRedeem = SafeMath.div(SafeMath.mul(address(this).balance, 90), 100);
 
         // Verify that there is any accepted hints
         if (acceptedHints > 0) {
@@ -244,22 +284,68 @@ contract FindRequest is Ownable {
 
     function redeemBalance() public payable onlyOwner {
         require(findRequestState == 3); // 3 = RedimingBalances
+        uint amountToRedeem = 0;
+
+        // Check if the current balance (initial incentive + donations) is higher than initial incentive
+        if (address(this).balance > initialIncentive) {
+            // AVOID FRAUD VECTOR
+            // Only transfer 90% of the initial incentive
+            amountToRedeem = SafeMath.div(SafeMath.mul(initialIncentive, 90), 100);
+        } else {
+            amountToRedeem = address(this).balance;
+        }
+
+        // Always save this amount fix to make sure all transfers ends correctly
+        if (amountToRedeem > minimumTranferCost) {
+            // Transfer money to owner only if the balance covers the costs
+            owner.transfer(SafeMath.sub(amountToRedeem, minimumTranferCost));
+        }
+
+        // Change state to Closed (code: 4)
+        findRequestState = 4;
     }
 
     function rejectBalance() public payable onlyOwner {
         require(findRequestState == 3); // 3 = RedimingBalances
+
+        // Change state to Closed (code: 4)
+        findRequestState = 4;
     }
 
     function cancelFindRequest() public payable onlyCurator {
-
+        // Change state to Closed (code: 4)
+        findRequestState = 4;
     }
 
-    // Default function to withdraw balance from factory contract
-    // function withdraw(uint amount) public onlyOwner returns(bool) {
-    //     require(amount <= address(this).balance);
-    //     owner.transfer(amount);
-    //     return true;
-    // }
+    // The current balance is gonna be distributed when the contract
+    // get the confirmation that associated sentitive data was errased
+    // from the private chain or server
+    function executeDonationDistrubutionSystem(address beneficiaryA, address beneficiaryB) public payable onlyCurator {
+        require(findRequestState == 4); // 4 = Close
+        require(beneficiaryA != address(0));
+        require(beneficiaryB != address(0));
+        require(beneficiaryA != beneficiaryB);
+
+        // Share balance equaly between 2 other FindRequest
+        if (address(this).balance > minimumTranferCost) {
+
+            // Calculate amount to transfer
+            uint amountToDonate = SafeMath.sub(address(this).balance, minimumTranferCost);
+            uint amountPerBeneficiary = SafeMath.div(amountToDonate, 2);
+
+            // Make transfer
+            beneficiaryA.transfer(amountPerBeneficiary);
+            beneficiaryB.transfer(amountPerBeneficiary);
+        }
+
+        // Change state to BalanceDistributed (code: 5)
+        findRequestState = 5;
+    }
+
+    // Grant access to watchers
+    function grantAccessToWatchHints(address watcherAddress) public payable onlyOwner {
+        allowedHintsWatchers[watcherAddress] = true;
+    }
 
     function receiveDonations() public payable {
     }
@@ -269,11 +355,23 @@ contract FindRequest is Ownable {
     }
 
     // Utility function to compare strings
-    function compare(string a, string b) internal returns (bool) {
+    function compare(string a, string b) private pure returns (bool) {
         if(bytes(a).length != bytes(b).length) {
-          return false;
+            return false;
         } else {
-          return keccak256(a) == keccak256(b);
+            return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
+        }
+    }
+
+    // Utility function to check if the sender is owner or watcher
+    function _isOwnerOrWatcher() private view returns(bool){
+        if (owner == msg.sender) {
+            return true;
+        } else {
+            if (allowedHintsWatchers[msg.sender] == true) {
+                return true;
+            }
+            return false;
         }
     }
 }

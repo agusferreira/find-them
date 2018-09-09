@@ -5,8 +5,11 @@
     border-left: 5px solid limegreen;
 
   }
-  &.waiting{
-    background-color: $grey1;
+  &.info{
+    border-left: 5px solid $grey3;
+  }
+  &.error{
+    border-left: 5px solid $red-dark;
   }
 
 }
