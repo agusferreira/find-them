@@ -32,7 +32,7 @@ Find the project deployed on the Rinkeby Network at https://foundthem.network
 
 ## What's next for findthem.network
 
-**We love to see these concepts evolve:**
+**We would love to see these concepts evolve:**
 
 - Use push-notifications to notify all "subscribers" in the nearbys of an accepted hint location. There could also be incentives for people that help spread the word by sharing in other networks.
 - Obfuscate incentives amount to avoid misconducts of the users.
