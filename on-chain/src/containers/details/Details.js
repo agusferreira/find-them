@@ -144,9 +144,19 @@ class Details extends Component {
 
     };
 
-    _closeSearch = () => {
+    _closeSearch = async (comment) => {
+        console.log(comment);
+        let {drizzle} = this.context;
+        let {findRequest} = this.state;
+        const accounts = await drizzle.web3.eth.getAccounts();
+
+        const stackId = await findRequest.methods.closeFinding(comment)
+            .send({
+                from: accounts[0]
+            });
 
     };
+
     _addWatcher = (address) => {
         if (this.checkAddress()) {
 
@@ -179,6 +189,7 @@ class Details extends Component {
 
     render() {
         let {userOffchain, userBlockchain} = this.state;
+        console.log(this.state.userBlockchain);
         return (
             <div className={"details-section"}>
                 {this.state.userOffchain &&
