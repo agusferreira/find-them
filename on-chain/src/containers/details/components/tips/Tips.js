@@ -36,7 +36,6 @@ class Tips extends Component {
             type = "success";
         }else{
             type = "danger";
-
         }
 
         return (

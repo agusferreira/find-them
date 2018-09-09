@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
+import {Redirect} from 'react-router-dom';
 import {Grid, Col, Row} from 'react-bootstrap';
 import {drizzleConnect} from 'drizzle-react';
 import axios from 'axios';
@@ -89,6 +90,8 @@ class Details extends Component {
         * [9] acceptedHintsResponses
         * [10] closingMessage
         * */
+
+        // data[10] = 'este es un texto muy sentido por el padre';
 
         let {drizzle} = this.context;
         let accounts = await drizzle.web3.eth.getAccounts();
@@ -251,6 +254,27 @@ class Details extends Component {
         })
     };
 
+    _redeemIncentive = async () => {
+        const stackId = await this.state.findRequest.methods.redeemIncentive().send({from: this.state.account});
+        console.log(stackId);
+    };
+
+    _rejectIncentive = async () => {
+        const stackId = await this.state.findRequest.methods.rejectIncentive().send({from: this.state.account});
+        console.log(stackId);
+    };
+
+    _redeemBalance = async () => {
+        const stackId = await this.state.findRequest.methods.redeemBalance().send({from: this.state.account});
+        console.log(stackId);
+    };
+
+    _rejectBalance = async () => {
+        const stackId = await this.state.findRequest.methods.rejectBalance().send({from: this.state.account});
+        console.log(stackId);
+
+    };
+
     _handleInput = (prop, value) => {
         this.setState({[prop]: value});
     };
@@ -267,11 +291,13 @@ class Details extends Component {
             );
         }
 
+        // Open Status
         if(status === 1){
             return (
                 <div className={"details-section"}>
                     <Header/>
                     <BasicDetails
+                        status={status}
                         address={address}
                         blockChainData={userBlockchain}
                         otherData={userOffchain}
@@ -320,11 +346,13 @@ class Details extends Component {
             );
         }
 
+        // Redeeming incentives
         if(status === 2){
             return (
                 <div className={"details-section"}>
                     <Header/>
                     <BasicDetails
+                        status={status}
                         address={address}
                         blockChainData={userBlockchain}
                         otherData={userOffchain}
@@ -339,40 +367,50 @@ class Details extends Component {
                         actionClose={this._closeSearch}
                         actionDonate={this._sendDonation}
                         actionSendHint={this._sendHint}
+                        actionRedeem={this._redeemIncentive}
+                        actionReject={this._rejectIncentive}
 
                         redeemIncentives
+
                     />
                 </div>
             );
         }
 
-        return (
-            <div className={"details-section"}>
-                {this.state.userOffchain &&
-                <BasicDetails myLatLng={userBlockchain[3]} photo={userOffchain.photo}
-                              actionClose={this._closeSearch} actionDonate={this._sendDonation}
-                              actionSendHint={this._sendHint}
-                              propDonate={"donation_amount"} propHint={"hint"} valueDonate={this.state.donation_amount}
-                              valueHint={this.state.hint}
-                              name={`${userOffchain.first_name + ` ` + userOffchain.last_name}`}
-                              age={`${userBlockchain[2]} years old`} location={"Görlitzer Park, Berlin"}
-                              date={dateFormat(userOffchain.lost_date)} contact={userOffchain.creator_email}
-                              description={userOffchain.description}/>}
-                <Grid>
-                    <Row>
-                        <Col xs={12}>
-                            <Row>
-                                <Col xs={10}>
-                                    <h2 className={"title"}>Hints</h2>
-                                </Col>
-                                <Col xs={2} style={{marginTop: 50}}>
-                                </Col>
-                            </Row>
-                        </Col>
-                    </Row>
-                </Grid>
-            </div>
-        )
+        // Redeeming balance
+        if(status === 3){
+            return (
+                <div className={"details-section"}>
+                    <Header/>
+                    <BasicDetails
+                        status={status}
+                        address={address}
+                        blockChainData={userBlockchain}
+                        otherData={userOffchain}
+                        isOwner={isOwner}
+                        locations={locations}
+
+                        propDonate={"donation_amount"}
+                        propHint={"hint"}
+                        valueDonate={this.state.donation_amount}
+                        valueHint={this.state.hint}
+
+                        actionClose={this._closeSearch}
+                        actionDonate={this._sendDonation}
+                        actionSendHint={this._sendHint}
+                        actionRedeem={this._redeemBalance}
+                        actionReject={this._rejectBalance}
+
+                        redeemBalance
+
+                    />
+                </div>
+            );
+        }
+
+        // Other cases
+        return <Redirect to='/'/>;
+
 
     }
 
