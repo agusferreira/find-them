@@ -33,6 +33,12 @@
 
   }
 
+  &.disabled {
+    color: black;
+    border-color: $grey3;
+    background: $grey3;
+  }
+
   &.aqua-full {
     color: $white;
     border-color: $aqua;
