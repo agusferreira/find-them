@@ -14,6 +14,12 @@
   font-size: 100px;
   letter-spacing: 1px;
   line-height: 70px;
+
+  @media screen and (max-width: 767px) {
+    font-size: 40px;
+    line-height: 50px;
+  }
+
 }
 
 .landing-p {
@@ -26,6 +32,12 @@
   font-weight: bold;
   letter-spacing: 1px;
   line-height: 70px;
+
+  @media screen and (max-width: 767px) {
+    font-size: 30px;
+    line-height: 40px;
+    width: auto;
+  }
 }
 
 .background-img{

@@ -73,6 +73,7 @@ class RequestForm extends Component{
 
         // Setting up a max for age
         if(prop === 'age' && value > 99) value = 99;
+        if(prop === 'incentive' && value <= 0) value = 0.01;
 
         this.setState({[prop]: value});
     };
