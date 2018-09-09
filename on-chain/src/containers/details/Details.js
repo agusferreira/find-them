@@ -9,7 +9,6 @@ import './style.scss';
 import BasicDetails from "./components/basicDetails/BasicDetails";
 import Tips from "./components/tips/Tips";
 import ButtonModal from "./components/buttonModal/ButtonModal";
-import LocationForm from "./components/locationForm/LocationForm";
 import RequestContract from '../../contracts/FindRequest.json';
 import urls from '../../utils/urls';
 import {dateFormat} from "../../utils/formatters";
@@ -33,6 +32,7 @@ class Details extends Component {
             address,
             account: '',
             status: 1,
+            locations: [],
             findRequest: false,
             isOwner: false,
             donation_amount: '',
@@ -41,6 +41,7 @@ class Details extends Component {
             userBlockchain: '',
             newWatcher: '',
             errorAddress: null,
+            hints: []
         }
 
         /*
@@ -78,13 +79,15 @@ class Details extends Component {
         * Summary
         * [0] owner
         * [1] balance
-        * [2] owner
-        * [3] age
-        * [4] location
-        * [5] date
-        * [6] description
-        * [7] locationsLength
-        * [8] hintsLength
+        * [2] age
+        * [3] location
+        * [4] date
+        * [5] description
+        * [6] locationsLength
+        * [7] hintsLength
+        * [8] acceptedHints
+        * [9] acceptedHintsResponses
+        * [10] closingMessage
         * */
 
         let {drizzle} = this.context;
@@ -95,9 +98,27 @@ class Details extends Component {
                 status: parseInt(status, 10),
                 account: accounts[0],
                 isOwner: (accounts[0].toString().toUpperCase() === data[0].toString().toUpperCase())
-            }, this._fetchHints);
+            }, () => {
+                this._fetchHints();
+                this._fetchLocations();
+            });
             this._fetchOffChainData(this.state.address);
         }
+    };
+
+    _fetchLocations = async () => {
+        let locationsLength = this.state.userBlockchain[6];
+        let locations = [];
+
+        let initialCoords = this.state.userBlockchain[3];
+        locations.push(initialCoords);
+
+        for(let i = 0; i < locationsLength; i++){
+            let location = await this.state.findRequest.methods.getKnownLocations(i).call();
+            locations.push(location);
+        }
+
+        this.setState({locations});
     };
 
     _fetchOffChainData = (address) => {
@@ -113,19 +134,19 @@ class Details extends Component {
     };
 
     _fetchHints = async () => {
-
         let {drizzle} = this.context;
-        let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
         const accounts = await drizzle.web3.eth.getAccounts();
         let hintsLength = this.state.userBlockchain[7];
         let hints = [];
-
         for (let i = 0; i < hintsLength; i++) {
-            let hint = await findRequest.methods.getHint(i).call({from: accounts[0]});
-            console.log(hint);
-            hints.push(hint);
+            try{
+                let hint = await this.state.findRequest.methods.getHint(i).call({from: accounts[0]});
+                hints.push(hint);
+            }
+            catch (e) {
+                console.log('Hints not available');
+            }
         }
-        console.log(hints);
         this.setState({hints});
     };
 
@@ -218,8 +239,15 @@ class Details extends Component {
 
     _renderHints = () => {
         return this.state.hints.map((hint, index) => {
-            return <Tips key={index} type={parseInt(hint[1],10)} hint={hint[0]} id={index}
-                         editable={true} acceptAction={this._acceptHint} rejectAction={this._rejectHint}/>
+            return (
+                <Tips
+                    key={index} type={parseInt(hint[1],10)}
+                    hint={hint[0]} id={index}
+                    editable={true} acceptAction={this._acceptHint}
+                    rejectAction={this._rejectHint}
+                    isOwner={this.state.isOwner}
+                />
+            )
         })
     };
 
@@ -228,7 +256,7 @@ class Details extends Component {
     };
 
     render() {
-        let {userOffchain, userBlockchain, status, isOwner} = this.state;
+        let {address, userOffchain, userBlockchain, status, isOwner, locations} = this.state;
 
         if(!this.props.drizzleStatus.initialized || !userOffchain || !userBlockchain){
             return (
@@ -242,10 +270,13 @@ class Details extends Component {
         if(status === 1){
             return (
                 <div className={"details-section"}>
+                    <Header/>
                     <BasicDetails
+                        address={address}
                         blockChainData={userBlockchain}
                         otherData={userOffchain}
                         isOwner={isOwner}
+                        locations={locations}
 
                         propDonate={"donation_amount"}
                         propHint={"hint"}
@@ -255,11 +286,66 @@ class Details extends Component {
                         actionClose={this._closeSearch}
                         actionDonate={this._sendDonation}
                         actionSendHint={this._sendHint}
+
+                        showMap
+                    />
+
+                    {this.state.hints.length > 0 &&
+                    <Grid>
+                        <Row>
+                            <Col xs={12}>
+                                <h2>Hints</h2>
+                                {isOwner &&
+                                <div className={'text-right'} style={{marginBottom: '10px'}}>
+                                    <ButtonModal
+                                        username={this.props.name} buttonTitle={"Add watcher"} type={"input"}
+                                        action={this._addWatcher}
+                                        value={this.state.newWatcher}
+                                        validation={this.state.errorAddress}
+                                        handleAction={this._handleInput}
+                                        inputProp={"newWatcher"}
+                                        title={"Add new watcher"}
+                                        acceptButtonText={"Add"}
+                                        placeholder={"Address"}
+                                        textContent={`If you add a watcher to this search, he/she would be
+                                                         able to watch all the hints available. Are you sure you want to proceed?`}/>
+                                </div>
+                                }
+                                {this._renderHints()}
+                            </Col>
+                        </Row>
+                    </Grid>
+                    }
+                </div>
+            );
+        }
+
+        if(status === 2){
+            return (
+                <div className={"details-section"}>
+                    <Header/>
+                    <BasicDetails
+                        address={address}
+                        blockChainData={userBlockchain}
+                        otherData={userOffchain}
+                        isOwner={isOwner}
+                        locations={locations}
+
+                        propDonate={"donation_amount"}
+                        propHint={"hint"}
+                        valueDonate={this.state.donation_amount}
+                        valueHint={this.state.hint}
+
+                        actionClose={this._closeSearch}
+                        actionDonate={this._sendDonation}
+                        actionSendHint={this._sendHint}
+
+                        redeemIncentives
                     />
                 </div>
             );
         }
-        
+
         return (
             <div className={"details-section"}>
                 {this.state.userOffchain &&
@@ -280,24 +366,11 @@ class Details extends Component {
                                     <h2 className={"title"}>Hints</h2>
                                 </Col>
                                 <Col xs={2} style={{marginTop: 50}}>
-                                    <ButtonModal username={this.props.name} buttonTitle={"Add watcher"} type={"input"}
-                                                 action={this._addWatcher}
-                                                 value={this.state.newWatcher}
-                                                 validation={this.state.errorAddress}
-                                                 handleAction={this._handleInput}
-                                                 inputProp={"newWatcher"}
-                                                 title={"Add new watcher"}
-                                                 acceptButtonText={"Add"}
-                                                 placeholder={"Address"} textContent={`If you add a watcher to this search, he/she would be
-                                                 able to watch all the hints available. Are you sure you want to proceed?`}/>
                                 </Col>
                             </Row>
-                            {this.state.hints &&
-                            this._renderHints()}
                         </Col>
                     </Row>
                 </Grid>
-                <LocationForm address={this.state.address}/>
             </div>
         )
 
