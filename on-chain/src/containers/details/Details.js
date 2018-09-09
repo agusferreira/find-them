@@ -34,6 +34,7 @@ class Details extends Component {
             hint: '',
             userOffchain: '',
             userBlockchain: '',
+            newWatcher: '',
             errorAddress: null,
 
         }
@@ -147,9 +148,14 @@ class Details extends Component {
     _closeSearch = () => {
 
     };
-    _addWatcher = (address) => {
-        if (this.checkAddress()) {
 
+    _addWatcher = async () => {
+        if (this.checkAddress()) {
+            let {drizzle} = this.context;
+            const accounts = await drizzle.web3.eth.getAccounts();
+            const stackId = await this.state.findRequest.methods
+                .grantAccessToWatchHints(this.state.newWatcher).send({from: accounts[0]});
+            console.log(stackId);
         } else {
             return false;
         }
@@ -157,7 +163,9 @@ class Details extends Component {
 
     checkAddress = () => {
         let {drizzle} = this.context;
-        if (drizzle.web3.utils.isAddress(this.state.address)) {
+        let isAddress = drizzle.web3.utils.isAddress(this.state.newWatcher);
+        console.log(this.state.newWatcher, ': ', isAddress);
+        if (isAddress) {
             this.setState({errorAddress: 'success'});
             return true;
         } else {
@@ -201,10 +209,10 @@ class Details extends Component {
                                 <Col xs={2} style={{marginTop: 50}}>
                                     <ButtonModal username={this.props.name} buttonTitle={"Add watcher"} type={"input"}
                                                  action={this._addWatcher}
-                                                 value={this.state.address}
+                                                 value={this.state.newWatcher}
                                                  validation={this.state.errorAddress}
                                                  handleAction={this._handleInput}
-                                                 inputProp={"address"}
+                                                 inputProp={"newWatcher"}
                                                  title={"Add new watcher"}
                                                  acceptButtonText={"Add"}
                                                  placeholder={"Address"} textContent={`If you add a watcher to this search, he/she would be
