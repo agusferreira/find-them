@@ -18,11 +18,9 @@ class Card extends Component {
     _findReverseGeocoding = () =>{
         Geocode.setApiKey("AIzaSyDe1q7rvBSFYyG_d87OZplzm5IVeJodp6A");
         let latLang= this.props.lastSeenLocation.split(",");
-        console.log(latLang);
         Geocode.fromLatLng(latLang[0], latLang[1]).then(
             response => {
                 const address = response.results[0].formatted_address;
-                console.log(address);
                 this.setState({address});
             },
             error => {

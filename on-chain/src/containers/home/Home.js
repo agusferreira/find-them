@@ -114,7 +114,7 @@ class Home extends Component {
                                     if(request.last_name) name = `${name} ${request.last_name}`;
 
                                     return (
-                                        <Col xs={3} key={index}>
+                                        <Col xs={12} sm={4} md={3} key={index}>
                                             <Card key={index} name={name} image={`${urls.API_ROOT}${request.photo}`}
                                                   action={() => this.props.history.push(`detail/${request.contract_deployed_address}/`)}
                                                   lastSeenLocation={'LOCATION'}

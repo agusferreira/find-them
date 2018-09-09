@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
-import {Redirect} from 'react-router-dom';
+import {Redirect, withRouter} from 'react-router-dom';
 import {Grid, Col, Row} from 'react-bootstrap';
 import {drizzleConnect} from 'drizzle-react';
 import axios from 'axios';
@@ -269,12 +269,35 @@ class Details extends Component {
     _redeemBalance = async () => {
         const stackId = await this.state.findRequest.methods.redeemBalance().send({from: this.state.account});
         console.log(stackId);
+
+        this._getNearContracts();
     };
 
     _rejectBalance = async () => {
         const stackId = await this.state.findRequest.methods.rejectBalance().send({from: this.state.account});
         console.log(stackId);
 
+        this._getNearContracts();
+    };
+
+    _getNearContracts = () => {
+        let NEAR_URL = `${urls.API_ROOT}/api/v1/requests/${this.state.address}/close/`;
+        axios.get(NEAR_URL, {})
+            .then((response) => {
+                let {data} = response;
+                let {drizzle} = this.context;
+                drizzle.contracts.FindRequestFactory.methods
+                    .executeDonationDistrubutionSystem(data['beneficiaryA'], data['beneficiaryB'])
+                    .send({
+                        from: this.state.account
+                    }).then(response => {
+                        console.log(response);
+                        this.props.history.push("/");
+                    });
+            })
+            .catch((error) => {
+                console.log(error.response);
+            })
     };
 
     _handleInput = (prop, value) => {
@@ -284,8 +307,6 @@ class Details extends Component {
     render() {
         let {address, userOffchain, userBlockchain, status,
             isOwner, locations, closingMessage} = this.state;
-
-        console.log(this.state);
 
         if(!this.props.drizzleStatus.initialized || !userOffchain || !userBlockchain){
             return (
@@ -384,7 +405,7 @@ class Details extends Component {
         }
 
         // Redeeming balance
-        if(status === 3){
+        if(status < 5){
             return (
                 <div className={"details-section"}>
                     <Header/>
@@ -431,10 +452,11 @@ const mapStateToProps = state => {
     return {
         drizzleStatus: state.drizzleStatus,
         web3: state.web3,
+        FindRequestFactory: state.contracts.FindRequestFactory
     }
 };
 
-const DetailsContainer = drizzleConnect(Details, mapStateToProps);
+const DetailsContainer = withRouter(drizzleConnect(Details, mapStateToProps));
 
 export default DetailsContainer;
 

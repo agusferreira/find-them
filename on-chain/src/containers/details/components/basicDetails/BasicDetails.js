@@ -46,23 +46,22 @@ class BasicDetails extends Component {
         );
     };
 
-    _findReverseGeocoding = () =>{
-        Geocode.setApiKey("AIzaSyDe1q7rvBSFYyG_d87OZplzm5IVeJodp6A");
-        let latLang= this.props.myLatLng.split(",");
-        console.log(latLang);
-        Geocode.fromLatLng(latLang[0], latLang[1]).then(
-            response => {
-                const address = response.results[0].formatted_address;
-                this.setState({address});
-            },
-            error => {
-                console.error(error);
-            }
-        );
-    };
+    // _findReverseGeocoding = () =>{
+    //     Geocode.setApiKey("AIzaSyDe1q7rvBSFYyG_d87OZplzm5IVeJodp6A");
+    //     let latLang= this.props.myLatLng.split(",");
+    //     Geocode.fromLatLng(latLang[0], latLang[1]).then(
+    //         response => {
+    //             const address = response.results[0].formatted_address;
+    //             this.setState({address});
+    //         },
+    //         error => {
+    //             console.error(error);
+    //         }
+    //     );
+    // };
 
     componentDidMount = () => {
-        this._findReverseGeocoding();
+        // this._findReverseGeocoding();
     };
 
     _handleInput = (prop, value) => {
@@ -247,8 +246,7 @@ class BasicDetails extends Component {
                                         </p>
                                         {this.props.closingMessage ?
                                             <div className={'closing-message'}>
-                                                <h4>Closing message</h4>
-                                                <p>Here's a message from the request's creator: </p>
+                                                <h4>Here's a message from the request's creator: </h4>
                                                 <div className={'c-message'}>
                                                     {this.props.closingMessage}
                                                 </div>
