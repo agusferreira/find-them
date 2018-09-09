@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 
 import {Grid, Row, Col} from "react-bootstrap";
 import {GoogleMap, Marker} from 'react-google-maps';
+import Geocode from "react-geocode";
 
 import ButtonModal from "../buttonModal/ButtonModal";
 import Header from "../../../../components/header/Header";
@@ -18,7 +19,8 @@ class BasicDetails extends Component {
         this.state={
             donation_amount:'',
             hint:'',
-            comment:''
+            comment:'',
+            address:'',
         }
     }
 
@@ -45,6 +47,25 @@ class BasicDetails extends Component {
                 {marker}
             </GoogleMap>
         );
+    };
+
+    _findReverseGeocoding = () =>{
+        Geocode.setApiKey("AIzaSyDe1q7rvBSFYyG_d87OZplzm5IVeJodp6A");
+        let latLang= this.props.myLatLng.split(",");
+        console.log(latLang);
+        Geocode.fromLatLng(latLang[0], latLang[1]).then(
+            response => {
+                const address = response.results[0].formatted_address;
+                this.setState({address});
+            },
+            error => {
+                console.error(error);
+            }
+        );
+    };
+
+    componentDidMount= ()=>{
+        this._findReverseGeocoding();
     };
 
     _handleInput = (prop, value) => {
@@ -99,7 +120,7 @@ class BasicDetails extends Component {
                         <Col xs={12} md={4} className={"data"}>
                             <img src={urls.API_ROOT + this.props.photo} alt={"Usuario"} className={"avatar-icon"}/>
                             <p><b>AGE: </b> {this.props.age}</p>
-                            <p><b>LOCATION: </b> {this.props.location}</p>
+                            <p><b>LOCATION: </b> {this.state.address}</p>
                             <p><b>DATE: </b>{this.props.date}</p>
                             <p><b>CONTACT: </b> {this.props.contact}</p>
                             <p><b>DESCRIPTION: </b> {this.props.description}</p>

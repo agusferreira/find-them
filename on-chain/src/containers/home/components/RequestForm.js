@@ -4,7 +4,7 @@ import { drizzleConnect } from 'drizzle-react';
 
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import {withRouter} from 'react-router-dom';
+import {Link, withRouter} from 'react-router-dom';
 import {GoogleMap, Marker} from 'react-google-maps';
 import {
     Grid, Row, Col, Modal, FormGroup,
@@ -24,6 +24,7 @@ class RequestForm extends Component{
         this.state = {
             ajaxInProgress: false,
             show: false,
+            showMetamaskModal:false,
 
             first_name: '',
             last_name: '',
@@ -192,6 +193,18 @@ class RequestForm extends Component{
         );
     };
 
+    checkMetamask = () => {
+        if(!this.props.drizzleStatus.initialized){
+            this.setState({showMetamaskModal: true});
+        }else{
+            this.setState({show: true})
+        }
+    };
+
+   closeMetamaskModal = () =>{
+       this.setState({showMetamaskModal: false});
+   };
+
     render(){
         let {first_name, last_name, identifier, email, description, age,
             incentive, lastSeenDate, lastSeenLocation,
@@ -204,7 +217,7 @@ class RequestForm extends Component{
                 <Row>
                     <Col xs={12} className={'text-right'}>
                         <div className={'button-container'}>
-                            <Button onClick={() => this.setState({show: true})}>
+                            <Button onClick={() => {this.checkMetamask()}}>
                                 Create new request
                             </Button>
                         </div>
@@ -356,6 +369,39 @@ class RequestForm extends Component{
                             </Col>
                         </Row>
                     </Modal.Footer>
+                </Modal>
+                <Modal show={this.state.showMetamaskModal} onHide={this.closeMetamaskModal} className={'vertical-center'}>
+                    <Modal.Header closeButton>
+                        <Modal.Title id={"modalTitle"}>
+                            <img style={{marginBottom:20}} src={require('../../../assets/find-them-blue-aqua.png')}
+                                 alt={"Get Metamask"}/>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Grid className={"row margin-top-20 margin-bottom-20 text-center"}>
+                            <Row>
+                                <Col xs={6}>
+                                    <p><b> You’ll need an account to make a request</b></p>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col xs={6}>
+                                    <p >{`We recommend you MetaMask. This will also act as your login for you to monitor your deployed rules.
+                                    Do you already have Metamask installed?Make sure that your account is not blocked.`}</p>
+                                </Col>
+                            </Row>
+                            <Row className={"modal-buttons"}>
+                                <Col xs={6}>
+                                    <Link to={"//metamask.io"} target={"_blank"}>
+                                        <Button onClick={this.handleClose} color="secondary" variant="contained">
+                                            Get Metamask
+                                        </Button>
+                                    </Link>
+                                </Col>
+                            </Row>
+                        </Grid>
+                        {/*{this.state.ajaxInProgress ? <Spinner/> : <div><br/><br/></div>}*/}
+                    </Modal.Body>
                 </Modal>
             </Grid>
         );

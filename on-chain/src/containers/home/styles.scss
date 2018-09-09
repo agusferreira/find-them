@@ -1,20 +1,50 @@
 @import "../../styles/variables.scss";
 
-.home-section{
+.home-section {
 
 }
 
-.request-form{
 
-  .button-container{
+.landing-text {
+  right: 20px;
+  top:40px;
+  font-weight: bold;
+  color: $blue;
+  margin-top: 60px;
+  font-size: 100px;
+  letter-spacing: 1px;
+  line-height: 70px;
+}
+
+.landing-p {
+  right: 20px;
+  top:190px;
+  width:500px;
+  color: $blue;
+  margin-top: 60px;
+  font-size: 50px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 70px;
+}
+
+.background-img{
+  background: url('./../../assets/graffiti_background.jpg') no-repeat;
+  background-size: cover;
+
+}
+.request-form {
+  margin-top: 70px;
+
+  .button-container {
     padding: 10px 0;
 
-    button{
+    button {
       background: $blue;
       color: $white;
       border-width: 0;
 
-      &:hover{
+      &:hover {
         background: $blue-dark;
       }
 
@@ -24,8 +54,8 @@
 
 }
 
-.request-form-modal{
-  .map-container{
+.request-form-modal {
+  .map-container {
     height: 300px;
     margin-bottom: 20px;
   }
