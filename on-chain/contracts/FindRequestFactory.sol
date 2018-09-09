@@ -104,8 +104,8 @@ contract FindRequest is Ownable {
     uint8 private findRequestState;
     string private closingMessage;
     string[] private knownLocations;
-    mapping(address => bool) private acceptedHintsMap;
-    mapping(address => bool) private allowedHintsWatchers;
+    mapping(address => bool) acceptedHintsMap;
+    mapping(address => bool) allowedHintsWatchers;
     uint private acceptedHints;
     uint private acceptedHintsResponses;
 
@@ -145,10 +145,6 @@ contract FindRequest is Ownable {
         findRequestState = 1;
         acceptedHints = 0;
         minimumTranferCost = 200000;
-    }
-
-    modifier onlyHinter() {
-        _;
     }
 
     modifier onlyCurator() {
@@ -261,7 +257,7 @@ contract FindRequest is Ownable {
         closingMessage = finalText;
     }
 
-    function redeemIncentive() public payable onlyHinter {
+    function redeemIncentive() public payable {
         require(findRequestState == 2); // 2 = RedimingIncentives
         require(acceptedHintsMap[msg.sender]);
 
@@ -278,7 +274,7 @@ contract FindRequest is Ownable {
         }
     }
 
-    function rejectIncentive() public payable onlyHinter {
+    function rejectIncentive() public payable {
         require(findRequestState == 2); // 2 = RedimingIncentives
         require(acceptedHintsMap[msg.sender]);
 
@@ -323,27 +319,39 @@ contract FindRequest is Ownable {
     }
 
     function cancelFindRequest() public payable onlyCurator {
+        // EMERGENCY FUNCION - USE ONLY DUE A CLEAR REPORT ABUSE
+
         // Change state to Closed (code: 4)
         findRequestState = 4;
+
+        // Deny owner right to the contract
+        owner = curator;
     }
 
     // The current balance is gonna be distributed when the contract
     // get the confirmation that associated sentitive data was errased
     // from the private chain or server
-    function executeDonationDistrubutionSystem(address beneficiaryA, address beneficiaryB) public payable onlyCurator {
+    function executeDonationDistrubutionSystem(address beneficiaryA, address beneficiaryB) public payable onlyOwner {
         require(findRequestState == 4); // 4 = Close
         require(beneficiaryA != address(0));
         require(beneficiaryB != address(0));
         require(beneficiaryA != beneficiaryB);
 
+        // Verify state of FindRequest beneficiary constract "A"
+        FindRequest findRequestA = FindRequest(beneficiaryA);
+        require(findRequestA.getCurrentState() == 1); // 1 = open
+
+        // Verify state of FindRequest beneficiary constract "B"
+        FindRequest findRequestB = FindRequest(beneficiaryB);
+        require(findRequestB.getCurrentState() == 1); // 1 = open
+
         // Share balance equaly between 2 other FindRequest
         if (address(this).balance > minimumTranferCost) {
-
             // Calculate amount to transfer
             uint amountToDonate = SafeMath.sub(address(this).balance, minimumTranferCost);
             uint amountPerBeneficiary = SafeMath.div(amountToDonate, 2);
 
-            // Make transfer
+            // Make transfers
             beneficiaryA.transfer(amountPerBeneficiary);
             beneficiaryB.transfer(amountPerBeneficiary);
         }
@@ -357,7 +365,9 @@ contract FindRequest is Ownable {
         allowedHintsWatchers[watcherAddress] = true;
     }
 
+    // Propper function allow deposits to the contract
     function receiveDonations() public payable {
+        // TODO emit and event in each donation received
     }
 
     // Default anonymous function allow deposits to the contract
