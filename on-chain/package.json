@@ -48,6 +48,7 @@
     "react-bootstrap": "^0.32.4",
     "react-dev-utils": "^5.0.2",
     "react-dom": "^16.5.0",
+    "react-geocode": "^0.1.2",
     "react-google-maps": "^9.4.5",
     "react-lottie": "^1.2.3",
     "react-router-dom": "^4.3.1",

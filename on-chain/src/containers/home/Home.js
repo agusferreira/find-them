@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { drizzleConnect } from 'drizzle-react';
+import {drizzleConnect} from 'drizzle-react';
 
 import axios from 'axios';
 import {Grid, Row, Col} from 'react-bootstrap';
@@ -11,6 +11,8 @@ import RequestForm from "./components/RequestForm";
 import GoToRequest from "./components/GoToRequest";
 import Loading from "../../components/loading/Loading";
 import urls from "../../utils/urls";
+import {dateFormat} from "../../utils/formatters"
+
 import './styles.scss';
 
 class Home extends Component {
@@ -27,7 +29,7 @@ class Home extends Component {
 
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this._fetchRequests();
         if(this.props.drizzleStatus.initialized){
             this._checkAccount();
@@ -72,7 +74,7 @@ class Home extends Component {
         drizzle.contracts.FindRequestFactory.methods.getSummary().call()
             .then(contractSummary => {
                 let contracts = parseInt(contractSummary[2], 10);
-                for(let i = 0; i < contracts; i++){
+                for (let i = 0; i < contracts; i++) {
                     drizzle.contracts.FindRequestFactory.methods
                         .getFindRequest(i).call()
                         .then(rta => {
@@ -82,11 +84,24 @@ class Home extends Component {
             });
     };
 
+
+
     render() {
         let {requests, showForm, activeRequest} = this.state;
         return (
             <div>
                 <Header />
+                <div className={"background-img"}>
+                    <Grid>
+                        <Row>
+                            <Col mdOffset={6} md={6} xs={12}>
+                                <h1 className={"landing-text"}>WE ARE HERE <br/>TO HELP YOU</h1>
+                                <p className={"landing-p"}>Decentralized network to find missing people</p>
+
+                            </Col>
+                        </Row>
+                    </Grid>
+                </div>
                 {requests &&
                     <div>
                         {showForm && <RequestForm /> }
@@ -111,7 +126,6 @@ class Home extends Component {
                         </Grid>
                     </div>
                 }
-
                 {!requests &&
                     <Loading />
                 }

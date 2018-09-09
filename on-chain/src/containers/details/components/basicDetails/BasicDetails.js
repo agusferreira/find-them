@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 
 import {Grid, Row, Col, Modal} from "react-bootstrap";
 import {GoogleMap, Marker} from 'react-google-maps';
+import Geocode from "react-geocode";
 
 import ButtonModal from "../buttonModal/ButtonModal";
 import {BasicGoogleMap} from "../../../../components/map/Map";
@@ -43,6 +44,25 @@ class BasicDetails extends Component {
                 })}
             </GoogleMap>
         );
+    };
+
+    _findReverseGeocoding = () =>{
+        Geocode.setApiKey("AIzaSyDe1q7rvBSFYyG_d87OZplzm5IVeJodp6A");
+        let latLang= this.props.myLatLng.split(",");
+        console.log(latLang);
+        Geocode.fromLatLng(latLang[0], latLang[1]).then(
+            response => {
+                const address = response.results[0].formatted_address;
+                this.setState({address});
+            },
+            error => {
+                console.error(error);
+            }
+        );
+    };
+
+    componentDidMount = () => {
+        this._findReverseGeocoding();
     };
 
     _handleInput = (prop, value) => {
