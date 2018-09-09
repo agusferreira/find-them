@@ -16,15 +16,6 @@ STATES = {
 class ContractService:
 
     def send_near_addreses_to_factory(self, request_for_find):
-        with open("/usr/src/app/contracts/FindRequestFactory.json") as f:
-            info_json = json.load(f)
-        abi = info_json["abi"]
-
-        w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/6a38bf6089ba43d59418b0ba54c6c5f1"))
-
-        config = SystemSettings.get_solo()
-        contract = w3.eth.contract(address=Web3.toChecksumAddress(config.factory_address), abi=abi)
-
         near_contracts = []
         contracts = RequestForFind.objects.filter(finished=False).exclude(id=request_for_find.id)
         for nc in contracts:
@@ -51,26 +42,13 @@ class ContractService:
 
         near_contracts = sorted(near_contracts, key=lambda k: k['distance'])
 
-        print(Web3.toChecksumAddress(config.factory_address))
+        data = {}
+        if len(near_contracts) > 1:
+            data['donator'] = request_for_find.contract_deployed_address
+            data['beneficiaryA'] = near_contracts[0]['address']
+            data['beneficiaryB'] = near_contracts[1]['address']
 
-        pvt_key = str("39887d50b6cd1de9e16d8bcbc2f1b0aa2905308edc2efacecca3c064e1625c9e")
-        account = w3.eth.account.privateKeyToAccount(pvt_key)
-        transaction = {
-            'to': Web3.toChecksumAddress(config.factory_address),
-            'value': 1000000000,
-            'gas': 2000000,
-            'gasPrice': 234567897654321,
-            'nonce': w3.eth.getTransactionCount(Web3.toChecksumAddress(account.address)),
-            'chainId': 1
-        }
-
-        signed_txn = w3.eth.account.signTransaction(transaction, pvt_key)
-
-        contract.functions.distributeBalance(
-            donator=request_for_find.contract_deployed_address,
-            beneficiaryA=near_contracts[0]['address'],
-            beneficiaryB=near_contracts[1]['address']
-        ).transact(signed_txn.rawTransaction)
+        return data
 
     def check_contract_status(self):
         with open("/usr/src/app/contracts/FindRequest.json") as f:
@@ -97,7 +75,6 @@ class ContractService:
 
             rff.contract_status = current_state
             rff.save()
-
 
     def validate_contract(self, index, request_for_find):
         with open("/usr/src/app/contracts/FindRequestFactory.json") as f:

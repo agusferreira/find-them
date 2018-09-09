@@ -34,6 +34,19 @@ class RequestForFindViewSet(APIView):
         return Response(serializer.data)
 
 
+class NearRequestForFindViewSet(APIView):
+
+    def get(self, request, contract_deployed_address=None):
+        if contract_deployed_address:
+            rff = get_object_or_404(RequestForFind, contract_deployed_address=contract_deployed_address, finished=False)
+            data = contract_service.send_near_addreses_to_factory(rff)
+            rff.finished = True
+            rff.save()
+            return Response(data)
+        else:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class HintsViewSet(APIView):
 
     def post(self, request):
