@@ -26,7 +26,6 @@ class ButtonModal extends Component {
     };
 
     _handleInput = (text) => {
-        console.log(text);
         this.props.handleAction(this.props.inputProp, text);
     };
 
@@ -77,8 +76,11 @@ class ButtonModal extends Component {
                                     </Button>
                                     <Button className={`blue-full ${buttonsDisabled ? 'disabled' : ''}`}
                                             onClick={() => {
-                                                this.setState({showModal: false});
-                                                this.props.action()
+                                                console.log(this.props.isValid)
+                                                if(this.props.isValid){
+                                                    // this.setState({showModal: false});
+                                                    this.props.action();
+                                                }
                                             }}>
                                         {this.props.acceptButtonText ? this.props.acceptButtonText : 'Send'}
                                     </Button>
@@ -95,5 +97,9 @@ class ButtonModal extends Component {
     }
 
 }
+
+ButtonModal.defaultProps = {
+    isValid: true
+};
 
 export default ButtonModal;

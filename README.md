@@ -1,31 +1,45 @@
 # Find-Them
 
-## ETHBerlin Hackathon project
+## Inspiration
 
-### Summary
-We developed a network for finding missing children, giving the parents an easy-to-use decentralized application for posting information and offer incentives for the network to help.
-Assuring anonymity in the hints from the network, accepting donations for more incentives and advertisement, and collaborating with the network after the request is finished to create sinergy.
-Collaborators are refunded for their costs, and could get incentives if they wanted to. A share of the balance is given to the network for other active posts and parents are refunded the remaining balance.
+We wanted to build something that could potentially be adopted by the general public working around an increasing social-issue. We think this kind of tools can generate impact among communities and help leverage the "mass-addaption".
 
-Find the project deployed in the Rinkeby Network at https://foundthem.network
+## What it does
 
-## Main Features
-* Create Find Requests
-* Donate to a Find Request
-* Submit Hints to a Find Request
-* Approve or reject Hints
-* Close a Find Request
-* Refund Gas costs to all collaborators
-* Approved collaborators can redeem the incentive or donate it to the network
-* Parents can retrieve the remaining balance or donate it to the network
-* Automatic distribution of the balance to other geographically close Find Request
+findthem.network is a decentralized network for finding missing children. It gives parents and legal guardians an easy-to-use decentralized application for posting information and offering incentives to the network in exchange for help.
 
-## Next Steps
-* Change to a StableCoin (DAI) instead of ETH to ensure incentives & refunds
-* Obfuscate incentives amount to avoid misconducts of the users
-* Encrypt hints to ensure privacy for the Finding Request owner
-* Use network donations for advertising in an autonomous way through a decentralized network
-* Replace off-chain server (that stores sensitive data) for a private blockchain
+**Main Features**
+
+- Open new cases providing.
+- Support a case through donation. These donations are then used to extend the search reach.
+- Anonymous submission of hints that only parents can read.
+- Grant access to third-parties so that they can follow a case progress.
+- Approval or rejection of hints by parents.
+- Gas refund to collaborators on parents on approval of the submitted hint.
+- Sensitive data deletion when a case is solved. Only aggregated data remains in the blockchain for statistical purposes.
+- Approved collaborators can redeem the incentive or donate it to the network.
+- Automatic distribution of the balance to other geographically close cases.
+
+Find the project deployed on the Rinkeby Network at https://foundthem.network
+
+## Accomplishments that we're proud of
+
+- Buidling a social dapp with real-world social impact.
+- Preserving anonymity of hint's provider.
+- Avoiding hint manipulation by third-parties.
+- Accepting donations to spread the word.
+- Increase collaboration by offering rewards.
+
+## What's next for findthem.network
+
+**We love to see these concepts evolve:**
+
+- Use push-notifications to notify all "subscribers" in the nearbys of an accepted hint location. There could also be incentives for people that help spread the word by sharing in other networks.
+- Obfuscate incentives amount to avoid misconducts of the users.
+* Encrypt hints to ensure privacy for the Finding Request owner.
+- Using a stable coin would be a good feature in order to preserve the value of economic incentives in the long-run.
+- A few things around centralization in our project could be resolved with DAO governance mechanisms.
+
 
 ## Built With
 * Solidity 0.4.18

@@ -10,8 +10,10 @@ contract FindRequestFactory is Ownable, Migratable {
 
     event newFindRequestCreated(address newAddress);
 
-    function initialize() public isInitializer("FindRequestFactory", "0")  {
-        // Init some variables here
+    function initialize(address _owner) public isInitializer("FindRequestFactory", "0")  {
+      if (owner == address(0)){
+        owner = _owner;
+      }
     }
 
     function createFindRequest(uint8 _age, string _location, string _lostDate, string _description) public payable {
@@ -19,7 +21,6 @@ contract FindRequestFactory is Ownable, Migratable {
         require(!compare(_location, ""));
         require(!compare(_lostDate, ""));
         require(!compare(_description, ""));
-
         // Create new Find Request contract and get deployed address
         address newFindRequest = new FindRequest(msg.sender, _age, _location, _lostDate, _description);
 
@@ -57,7 +58,6 @@ contract FindRequestFactory is Ownable, Migratable {
         findRequestFrom.executeDonationDistrubutionSystem(beneficiaryA, beneficiaryB);
     }
 
-
     function getFindRequest(uint findRequestNumber) public view returns (address) {
         require(deployedFindRequest.length > findRequestNumber);
         return deployedFindRequest[findRequestNumber];
@@ -71,8 +71,6 @@ contract FindRequestFactory is Ownable, Migratable {
           deployedFindRequest.length
         );
     }
-
-
 
     // Default function to withdraw balance from factory contract
     function withdraw(uint amount) public onlyOwner returns(bool) {
@@ -104,17 +102,17 @@ contract FindRequest is Ownable {
     uint private initialIncentive;
     uint private incentiveToRedeem;
     uint8 private findRequestState;
-    string closingMessage;
-
+    string private closingMessage;
     string[] private knownLocations;
-    mapping(address => bool) acceptedHintsMap;
-    mapping(address => bool) allowedHintsWatchers;
-    uint acceptedHints;
-    uint acceptedHintsResponses;
+    mapping(address => bool) private acceptedHintsMap;
+    mapping(address => bool) private allowedHintsWatchers;
+    uint private acceptedHints;
+    uint private acceptedHintsResponses;
 
     struct Hint {
         string text;
         uint8 state;
+        address author;
     }
 
     Hint[] private receivedHints;
@@ -168,7 +166,7 @@ contract FindRequest is Ownable {
     }
 
     // Return a summary tuple of relevant variables of the factory contract
-    function getSummary() public view returns(address,uint,uint,string,string,string,uint,uint) {
+    function getSummary() public view returns(address,uint,uint,string,string,string,uint,uint,uint,uint) {
         return (
           owner,
           address(this).balance,
@@ -177,12 +175,18 @@ contract FindRequest is Ownable {
           lostDate,
           description,
           knownLocations.length,
-          receivedHints.length
+          receivedHints.length,
+          acceptedHints,
+          acceptedHintsResponses
         );
     }
 
     function getCurator() public view returns(address) {
       return curator;
+    }
+
+    function getClosingMessage() public view returns (string) {
+        return closingMessage;
     }
 
     function addKnownLocation(string _location) public payable onlyOwner {
@@ -199,7 +203,7 @@ contract FindRequest is Ownable {
         require(msg.sender != owner);
         require(!compare(_text, ""));
 
-        Hint memory newHint = Hint(_text, 1);
+        Hint memory newHint = Hint(_text, 1, msg.sender);
         receivedHints.push(newHint);
     }
 
@@ -213,15 +217,16 @@ contract FindRequest is Ownable {
 
         // Register accepted address and increment counter
         acceptedHints++;
-        acceptedHintsMap[msg.sender] = true;
+        acceptedHintsMap[_hint.author] = true;
     }
 
-    function getHint(uint _hintNumber) public view ownerOrWatcher returns(string,uint) {
+    function getHint(uint _hintNumber) public view ownerOrWatcher returns(string,uint,address) {
         require(receivedHints.length > _hintNumber);
         Hint storage selectedHint = receivedHints[_hintNumber];
         return (
           selectedHint.text,
-          uint(selectedHint.state)
+          uint(selectedHint.state),
+          selectedHint.author
         );
     }
 
@@ -280,6 +285,11 @@ contract FindRequest is Ownable {
         // Remove address from acceptedHintsMap and record the response
         acceptedHintsMap[msg.sender] = false;
         acceptedHintsResponses++;
+
+        // Check if all accepted hints responses were recorder
+        if (acceptedHintsResponses == acceptedHints) {
+            findRequestState = 3; // 3 = RedimingBalances
+        }
     }
 
     function redeemBalance() public payable onlyOwner {

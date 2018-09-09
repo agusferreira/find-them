@@ -52,8 +52,10 @@ contract FindRequestFactory is Ownable {
 
     event newFindRequestCreated(address newAddress);
 
-    function initialize() public { // isInitializer("FindRequestFactory", "0")  {
-        // Init some variables here
+    function initialize(address _owner) public { // isInitializer("FindRequestFactory", "0")  {
+        if (owner == address(0)){
+            owner = _owner;
+        }
     }
 
     function createFindRequest(uint8 _age, string _location, string _lostDate, string _description) public payable {
@@ -61,7 +63,6 @@ contract FindRequestFactory is Ownable {
         require(!compare(_location, ""));
         require(!compare(_lostDate, ""));
         require(!compare(_description, ""));
-
         // Create new Find Request contract and get deployed address
         address newFindRequest = new FindRequest(msg.sender, _age, _location, _lostDate, _description);
 
@@ -99,7 +100,6 @@ contract FindRequestFactory is Ownable {
         findRequestFrom.executeDonationDistrubutionSystem(beneficiaryA, beneficiaryB);
     }
 
-
     function getFindRequest(uint findRequestNumber) public view returns (address) {
         require(deployedFindRequest.length > findRequestNumber);
         return deployedFindRequest[findRequestNumber];
@@ -109,12 +109,10 @@ contract FindRequestFactory is Ownable {
     function getSummary() public view returns (address, uint, uint) {
         return (
           owner,
-          this.balance,
+          address(this).balance,
           deployedFindRequest.length
         );
     }
-
-
 
     // Default function to withdraw balance from factory contract
     function withdraw(uint amount) public onlyOwner returns(bool) {
@@ -128,11 +126,11 @@ contract FindRequestFactory is Ownable {
     }
 
     // Utility function to compare strings
-    function compare(string a, string b) internal returns (bool) {
+    function compare(string a, string b) private pure returns (bool) {
         if(bytes(a).length != bytes(b).length) {
             return false;
         } else {
-            return keccak256(a) == keccak256(b);
+            return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
         }
     }
 }
@@ -146,17 +144,17 @@ contract FindRequest is Ownable {
     uint private initialIncentive;
     uint private incentiveToRedeem;
     uint8 private findRequestState;
-    string closingMessage;
-
+    string private closingMessage;
     string[] private knownLocations;
-    mapping(address => bool) acceptedHintsMap;
-    mapping(address => bool) allowedHintsWatchers;
-    uint acceptedHints;
-    uint acceptedHintsResponses;
+    mapping(address => bool) private acceptedHintsMap;
+    mapping(address => bool) private allowedHintsWatchers;
+    uint private acceptedHints;
+    uint private acceptedHintsResponses;
 
     struct Hint {
         string text;
         uint8 state;
+        address author;
     }
 
     Hint[] private receivedHints;
@@ -210,16 +208,18 @@ contract FindRequest is Ownable {
     }
 
     // Return a summary tuple of relevant variables of the factory contract
-    function getSummary() public view returns(address,uint,uint,string,string,string,uint,uint) {
+    function getSummary() public view returns(address,uint,uint,string,string,string,uint,uint,uint,uint) {
         return (
           owner,
-          this.balance,
+          address(this).balance,
           age,
           location,
           lostDate,
           description,
           knownLocations.length,
-          receivedHints.length
+          receivedHints.length,
+          acceptedHints,
+          acceptedHintsResponses
         );
     }
 
@@ -227,9 +227,13 @@ contract FindRequest is Ownable {
       return curator;
     }
 
-    function addKnownLocation(string location) public payable onlyOwner {
-        require(!compare(location, ""));
-        knownLocations.push(location);
+    function getClosingMessage() public view returns (string) {
+        return closingMessage;
+    }
+
+    function addKnownLocation(string _location) public payable onlyOwner {
+        require(!compare(_location, ""));
+        knownLocations.push(_location);
     }
 
     function getKnownLocations(uint knownLocationNumber) public view returns(string) {
@@ -241,7 +245,7 @@ contract FindRequest is Ownable {
         require(msg.sender != owner);
         require(!compare(_text, ""));
 
-        Hint memory newHint = Hint(_text, 1);
+        Hint memory newHint = Hint(_text, 1, msg.sender);
         receivedHints.push(newHint);
     }
 
@@ -255,15 +259,16 @@ contract FindRequest is Ownable {
 
         // Register accepted address and increment counter
         acceptedHints++;
-        acceptedHintsMap[msg.sender] = true;
+        acceptedHintsMap[_hint.author] = true;
     }
 
-    function getHint(uint _hintNumber) public view ownerOrWatcher returns(string,uint) {
+    function getHint(uint _hintNumber) public view ownerOrWatcher returns(string,uint,address) {
         require(receivedHints.length > _hintNumber);
         Hint storage selectedHint = receivedHints[_hintNumber];
         return (
           selectedHint.text,
-          uint(selectedHint.state)
+          uint(selectedHint.state),
+          selectedHint.author
         );
     }
 
@@ -282,7 +287,7 @@ contract FindRequest is Ownable {
         // TODO Pay gas cost of all Hints received (accepted or not)
 
         // Calculate max incentive to Redeem (90% of total incentive stored)
-        uint totalIncentiveToRedeem = SafeMath.div(SafeMath.mul(this.balance, 90), 100);
+        uint totalIncentiveToRedeem = SafeMath.div(SafeMath.mul(address(this).balance, 90), 100);
 
         // Verify that there is any accepted hints
         if (acceptedHints > 0) {
@@ -322,6 +327,11 @@ contract FindRequest is Ownable {
         // Remove address from acceptedHintsMap and record the response
         acceptedHintsMap[msg.sender] = false;
         acceptedHintsResponses++;
+
+        // Check if all accepted hints responses were recorder
+        if (acceptedHintsResponses == acceptedHints) {
+            findRequestState = 3; // 3 = RedimingBalances
+        }
     }
 
     function redeemBalance() public payable onlyOwner {
@@ -329,12 +339,12 @@ contract FindRequest is Ownable {
         uint amountToRedeem = 0;
 
         // Check if the current balance (initial incentive + donations) is higher than initial incentive
-        if (this.balance > initialIncentive) {
+        if (address(this).balance > initialIncentive) {
             // AVOID FRAUD VECTOR
             // Only transfer 90% of the initial incentive
             amountToRedeem = SafeMath.div(SafeMath.mul(initialIncentive, 90), 100);
         } else {
-            amountToRedeem = this.balance;
+            amountToRedeem = address(this).balance;
         }
 
         // Always save this amount fix to make sure all transfers ends correctly
@@ -369,10 +379,10 @@ contract FindRequest is Ownable {
         require(beneficiaryA != beneficiaryB);
 
         // Share balance equaly between 2 other FindRequest
-        if (this.balance > minimumTranferCost) {
+        if (address(this).balance > minimumTranferCost) {
 
             // Calculate amount to transfer
-            uint amountToDonate = SafeMath.sub(this.balance, minimumTranferCost);
+            uint amountToDonate = SafeMath.sub(address(this).balance, minimumTranferCost);
             uint amountPerBeneficiary = SafeMath.div(amountToDonate, 2);
 
             // Make transfer
@@ -397,11 +407,11 @@ contract FindRequest is Ownable {
     }
 
     // Utility function to compare strings
-    function compare(string a, string b) internal returns (bool) {
+    function compare(string a, string b) private pure returns (bool) {
         if(bytes(a).length != bytes(b).length) {
             return false;
         } else {
-            return keccak256(a) == keccak256(b);
+            return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
         }
     }
 

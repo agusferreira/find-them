@@ -15,6 +15,7 @@ import {BasicGoogleMap} from "../../../../components/map/Map";
 import Button from "../../../../components/button/Button";
 import RequestContract from '../../../../contracts/FindRequest.json';
 import helpers from "../../../../utils/helpers";
+import './styles.scss';
 
 const requestABI = RequestContract["abi"];
 
@@ -28,7 +29,7 @@ class LocationForm extends Component{
             show: false,
 
             address: this.props.address,
-            locations: [],
+            locations: this.props.locations,
 
             newLocation: {
                 lat: '',
@@ -44,9 +45,6 @@ class LocationForm extends Component{
     }
 
     componentDidMount() {
-        if(this.props.drizzleStatus.initialized){
-            this._fetchLocations();
-        }
         this._getLocation();
     }
 
@@ -64,47 +62,8 @@ class LocationForm extends Component{
         }
     };
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
-            this._fetchLocations();
-        }
-    }
-
     _handleClose = () => {
         this.setState({show: false});
-    };
-
-    _fetchLocations = async () => {
-        if(!this.state.address) return false;
-
-        let {drizzle} = this.context;
-        let findRequest = new drizzle.web3.eth.Contract(requestABI, this.state.address);
-        let summary = await findRequest.methods.getSummary().call();
-
-        /*
-        * Summary:
-        * [0]: owner
-        * [1]: balance
-        * [2]: age
-        * [3]: location
-        * [4]: lost_date
-        * [5]: description
-        * [6]: locations length
-        * [7]: hints length
-        * */
-
-        let locationsLength = summary[6];
-        let locations = [];
-
-        let initialCoords = summary[3];
-        locations.push(initialCoords);
-
-        for(let i = 0; i < locationsLength; i++){
-            let location = await findRequest.methods.getKnownLocations(i).call();
-            locations.push(location);
-        }
-
-        this.setState({locations});
     };
 
     _submitForm = async (ev) => {
@@ -186,16 +145,10 @@ class LocationForm extends Component{
         }
 
         return (
-            <Grid className={'request-form'}>
-                <Row>
-                    <Col xs={12} className={'text-right'}>
-                        <div className={'button-container'}>
-                            <Button onClick={() => this.setState({show: true})}>
-                                Add New Location
-                            </Button>
-                        </div>
-                    </Col>
-                </Row>
+            <div className={'location-form'}>
+                <Button onClick={() => this.setState({show: true})}>
+                    Add New Location
+                </Button>
                 <Modal show={this.state.show} onHide={this._handleClose} className={'request-form-modal'}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add a new location</Modal.Title>
@@ -236,7 +189,7 @@ class LocationForm extends Component{
                         </Row>
                     </Modal.Footer>
                 </Modal>
-            </Grid>
+            </div>
         );
     }
 
