@@ -51,11 +51,26 @@ class ContractService:
 
         near_contracts = sorted(near_contracts, key=lambda k: k['distance'])
 
+        print(Web3.toChecksumAddress(config.factory_address))
+
+        pvt_key = str("39887d50b6cd1de9e16d8bcbc2f1b0aa2905308edc2efacecca3c064e1625c9e")
+        account = w3.eth.account.privateKeyToAccount(pvt_key)
+        transaction = {
+            'to': Web3.toChecksumAddress(config.factory_address),
+            'value': 1000000000,
+            'gas': 2000000,
+            'gasPrice': 234567897654321,
+            'nonce': w3.eth.getTransactionCount(Web3.toChecksumAddress(account.address)),
+            'chainId': 1
+        }
+
+        signed_txn = w3.eth.account.signTransaction(transaction, pvt_key)
+
         contract.functions.distributeBalance(
             donator=request_for_find.contract_deployed_address,
-            beneficiaryA=near_contracts[0].contract_deployed_address,
-            beneficiaryB=near_contracts[1].contract_deployed_address
-        ).transact()
+            beneficiaryA=near_contracts[0]['address'],
+            beneficiaryB=near_contracts[1]['address']
+        ).transact(signed_txn.rawTransaction)
 
     def check_contract_status(self):
         with open("/usr/src/app/contracts/FindRequest.json") as f:
