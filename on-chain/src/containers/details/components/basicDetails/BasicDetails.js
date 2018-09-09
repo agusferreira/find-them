@@ -157,12 +157,11 @@ class BasicDetails extends Component {
                                             This request was closed and is now in the redeeming state. If you contributed
                                             to this request, feel free to redeem your share.
                                         </p>
-                                        {this.props.blockChainData[10] ?
+                                        {this.props.closingMessage ?
                                         <div className={'closing-message'}>
-                                            <h4>Closing message</h4>
-                                            <p>Here's a message from the request's creator: </p>
+                                            <h4>Here's a message from the request's creator: </h4>
                                             <div className={'c-message'}>
-                                                {this.props.blockChainData[10]}
+                                                {this.props.closingMessage}
                                             </div>
                                         </div>
                                         :
@@ -226,12 +225,12 @@ class BasicDetails extends Component {
                                             </span>
                                             }
                                         </p>
-                                        {this.props.blockChainData[10] ?
+                                        {this.props.closingMessage ?
                                             <div className={'closing-message'}>
                                                 <h4>Closing message</h4>
                                                 <p>Here's a message from the request's creator: </p>
                                                 <div className={'c-message'}>
-                                                    {this.props.blockChainData[10]}
+                                                    {this.props.closingMessage}
                                                 </div>
                                             </div>
                                             :

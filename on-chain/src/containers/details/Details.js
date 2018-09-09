@@ -42,7 +42,8 @@ class Details extends Component {
             userBlockchain: '',
             newWatcher: '',
             errorAddress: null,
-            hints: []
+            hints: [],
+            closingMessage: ''
         }
 
         /*
@@ -76,6 +77,7 @@ class Details extends Component {
     _fetchSummary = async () => {
         let data = await this.state.findRequest.methods.getSummary().call();
         let status = await this.state.findRequest.methods.getCurrentState().call();
+        let closingMessage = await this.state.findRequest.methods.getClosingMessage().call();
         /*
         * Summary
         * [0] owner
@@ -88,7 +90,6 @@ class Details extends Component {
         * [7] hintsLength
         * [8] acceptedHints
         * [9] acceptedHintsResponses
-        * [10] closingMessage
         * */
 
         // data[10] = 'este es un texto muy sentido por el padre';
@@ -100,6 +101,7 @@ class Details extends Component {
                 userBlockchain: data,
                 status: parseInt(status, 10),
                 account: accounts[0],
+                closingMessage,
                 isOwner: (accounts[0].toString().toUpperCase() === data[0].toString().toUpperCase())
             }, () => {
                 this._fetchHints();
@@ -280,7 +282,10 @@ class Details extends Component {
     };
 
     render() {
-        let {address, userOffchain, userBlockchain, status, isOwner, locations} = this.state;
+        let {address, userOffchain, userBlockchain, status,
+            isOwner, locations, closingMessage} = this.state;
+
+        console.log(this.state);
 
         if(!this.props.drizzleStatus.initialized || !userOffchain || !userBlockchain){
             return (
@@ -371,6 +376,7 @@ class Details extends Component {
                         actionReject={this._rejectIncentive}
 
                         redeemIncentives
+                        closingMessage={closingMessage}
 
                     />
                 </div>
@@ -402,6 +408,7 @@ class Details extends Component {
                         actionReject={this._rejectBalance}
 
                         redeemBalance
+                        closingMessage={closingMessage}
 
                     />
                 </div>
