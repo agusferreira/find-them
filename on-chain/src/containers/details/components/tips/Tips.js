@@ -36,7 +36,6 @@ class Tips extends Component {
             type = "success";
         }else{
             type = "danger";
-
         }
 
         return (
@@ -48,7 +47,7 @@ class Tips extends Component {
                                 <Col xs={10}>
                                     <p style={{fontSize: 18, padding: 14}}>{this.props.hint}</p>
                                 </Col>
-                                {this.props.type===1 &&
+                                {this.props.type === 1 && this.props.isOwner &&
                                 <Col xs={2}>
                                     <Col xs={3} className={'pointer'} onClick={() => this._showModal("accept")}>
                                         <MaterialIcon icon="check_circle_outline"

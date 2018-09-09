@@ -8,6 +8,8 @@ import {Grid, Row, Col} from 'react-bootstrap';
 import Card from "../../components/card/Card";
 import Header from "../../components/header/Header";
 import RequestForm from "./components/RequestForm";
+import GoToRequest from "./components/GoToRequest";
+import Loading from "../../components/loading/Loading";
 import urls from "../../utils/urls";
 import {dateFormat} from "../../utils/formatters"
 
@@ -19,26 +21,51 @@ class Home extends Component {
         super(props);
 
         this.state = {
-            requests: false
+            requests: false,
+            showForm: true,
+            account: '',
+            activeRequest: '',
         };
 
     }
 
     componentDidMount() {
         this._fetchRequests();
-    }
-
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        if (!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized) {
-            this._fetchSummary();
+        if(this.props.drizzleStatus.initialized){
+            this._checkAccount();
         }
     }
+
+    UNSAFE_componentWillReceiveProps(nextProps){
+        if(!this.props.drizzleStatus.initialized && nextProps.drizzleStatus.initialized){
+            this._checkAccount();
+        }
+    }
+
+    _checkAccount = async () => {
+        let {drizzle} = this.context;
+        const accounts = await drizzle.web3.eth.getAccounts();
+        if(accounts){
+            let account = accounts[0];
+            this.setState({account}, this._fetchRequests);
+        }
+    };
 
     _fetchRequests = () => {
         let URL = `${urls.API_ROOT}/api/v1/requests/`;
         axios.get(URL)
             .then(response => {
-                this.setState({requests: response.data});
+                let requests = response.data;
+                let showForm = true;
+                let activeRequest = '';
+                if(this.state.account){
+                    let active = requests.find(each => each.creator_address.toString().toUpperCase() === this.state.account.toString().toUpperCase());
+                    if(active){
+                        showForm = false;
+                        activeRequest = active.contract_deployed_address;
+                    }
+                }
+                this.setState({requests, showForm, activeRequest});
             });
     };
 
@@ -60,11 +87,10 @@ class Home extends Component {
 
 
     render() {
-        let {requests} = this.state;
-
+        let {requests, showForm, activeRequest} = this.state;
         return (
             <div>
-                <Header/>
+                <Header />
                 <div className={"background-img"}>
                     <Grid>
                         <Row>
@@ -76,27 +102,33 @@ class Home extends Component {
                         </Row>
                     </Grid>
                 </div>
-                <RequestForm/>
-                <Grid>
+                {requests &&
+                    <div>
+                        {showForm && <RequestForm /> }
+                        {!showForm && <GoToRequest activeRequest={activeRequest} /> }
+                        <Grid>
+                            <Row>
+                                {requests && requests.map((request, index) => {
+                                    let name = '';
+                                    if(request.first_name) name = `${request.first_name} `;
+                                    if(request.last_name) name = `${name} ${request.last_name}`;
 
-                    <Row>
-                        {requests && requests.map((request, index) => {
-                            let name = '';
-                            console.log(request);
-                            if (request.first_name) name = `${request.first_name} `;
-                            if (request.last_name) name = `${name} ${request.last_name}`;
-
-                            return (
-                                <Col xs={3} key={index}>
-                                    <Card key={index} name={name} image={`${urls.API_ROOT}${request.photo}`}
-                                          action={() => this.props.history.push(`detail/${request.contract_deployed_address}/`)}
-                                          lastSeenLocation={request.location}
-                                          lastSeenDate={dateFormat(request.lost_date)}/>
-                                </Col>
-                            );
-                        })}
-                    </Row>
-                </Grid>
+                                    return (
+                                        <Col xs={3} key={index}>
+                                            <Card key={index} name={name} image={`${urls.API_ROOT}${request.photo}`}
+                                                  action={() => this.props.history.push(`detail/${request.contract_deployed_address}/`)}
+                                                  lastSeenLocation={'LOCATION'}
+                                                  lastSeenDate={request.lost_date} />
+                                        </Col>
+                                    );
+                                })}
+                            </Row>
+                        </Grid>
+                    </div>
+                }
+                {!requests &&
+                    <Loading />
+                }
             </div>
         )
 

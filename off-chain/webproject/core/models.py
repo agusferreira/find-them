@@ -21,6 +21,7 @@ class RequestForFind(models.Model):
     creator_address = models.CharField(max_length=300)
     creator_email = models.EmailField()
     contract_deployed_address = models.CharField(max_length=300)
+    contract_status = models.IntegerField(default=1)
     finished = models.BooleanField(default=False)
 
     def __str__(self):

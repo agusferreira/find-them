@@ -10,8 +10,10 @@ contract FindRequestFactory is Ownable, Migratable {
 
     event newFindRequestCreated(address newAddress);
 
-    function initialize() public isInitializer("FindRequestFactory", "0")  {
-        // Init some variables here
+    function initialize(address _owner) public isInitializer("FindRequestFactory", "0")  {
+      if (owner == address(0)){
+        owner = _owner;
+      }
     }
 
     function createFindRequest(uint8 _age, string _location, string _lostDate, string _description) public payable {
@@ -19,7 +21,6 @@ contract FindRequestFactory is Ownable, Migratable {
         require(!compare(_location, ""));
         require(!compare(_lostDate, ""));
         require(!compare(_description, ""));
-
         // Create new Find Request contract and get deployed address
         address newFindRequest = new FindRequest(msg.sender, _age, _location, _lostDate, _description);
 
@@ -56,7 +57,6 @@ contract FindRequestFactory is Ownable, Migratable {
         // Trigger distributeBalance on "close" contract
         findRequestFrom.executeDonationDistrubutionSystem(beneficiaryA, beneficiaryB);
     }
-
 
     function getFindRequest(uint findRequestNumber) public view returns (address) {
         require(deployedFindRequest.length > findRequestNumber);
@@ -102,13 +102,12 @@ contract FindRequest is Ownable {
     uint private initialIncentive;
     uint private incentiveToRedeem;
     uint8 private findRequestState;
-    string closingMessage;
-
+    string private closingMessage;
     string[] private knownLocations;
-    mapping(address => bool) acceptedHintsMap;
-    mapping(address => bool) allowedHintsWatchers;
-    uint acceptedHints;
-    uint acceptedHintsResponses;
+    mapping(address => bool) private acceptedHintsMap;
+    mapping(address => bool) private allowedHintsWatchers;
+    uint private acceptedHints;
+    uint private acceptedHintsResponses;
 
     struct Hint {
         string text;
@@ -184,6 +183,10 @@ contract FindRequest is Ownable {
 
     function getCurator() public view returns(address) {
       return curator;
+    }
+
+    function getClosingMessage() public view returns (string) {
+        return closingMessage;
     }
 
     function addKnownLocation(string _location) public payable onlyOwner {

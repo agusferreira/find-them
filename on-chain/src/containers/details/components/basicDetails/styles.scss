@@ -21,24 +21,48 @@
 
   .data{
 
+    background: $white;
+    border: 1px solid $grey1;
+    border-radius: 5px;
+    height: 500px;
+
     h2{
-      margin: 0;
+      margin: 10px 0 0;
+      font-size: 30px;
+      line-height: 40px;
     }
 
-    & p{
-      color:$grey3;
-      font-size:18px;
+    .persons-data{
+      .avatar-icon{
+        height: 200px;
+        width: 100%;
+        max-width: 250px;
+        object-fit: cover;
+        object-position: top;
+        margin-bottom: 20px;
+        margin-top: 20px;
+      }
+    }
+    .info{
+      color: black;
+      font-size: 18px;
+
+      td{
+        padding: 10px;
+      }
+
+      .detail{
+        padding: 5px 10px;
+        height: 90px;
+        overflow-y: auto;
+        font-style: italic;
+        margin-bottom: 10px;
+      }
+
     }
 
   }
 
-  .avatar-icon{
-    height: 150px;
-    width: 150px;
-    border-radius: 50px;
-    margin-bottom: 20px;
-    margin-top: 20px;
-  }
 
   .username{
     color:$blue;
@@ -49,7 +73,55 @@
   }
 
   .map-container{
-    height: 400px;
+    background: $white;
+    height: 500px;
+    border: 1px solid $grey1;
+    border-radius: 5px;
+  }
+
+  .closed-info{
+
+    padding: 10px 20px 20px;
+
+    h2{
+      font-size: 30px;
+      color: $blue;
+      margin: 0 0 20px;
+      font-weight: bold;
+      line-height: 40px;
+    }
+
+    p{
+      font-size: 18px;
+    }
+
+    .closing-message{
+
+      padding: 20px 0 0;
+
+      h4{
+        font-size: 18px;
+        color: $blue;
+        padding: 0;
+        margin: 0;
+      }
+
+      .c-message{
+
+        height: 200px;
+        overflow-y: auto;
+        background: $grey0;
+        padding: 5px;
+        border-radius: 5px;
+
+      }
+
+    }
+
+    .final-buttons{
+      padding-top: 30px;
+    }
+
   }
 
 }

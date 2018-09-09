@@ -162,7 +162,6 @@ class RequestForm extends Component{
     };
 
     _mapRender = (props) => {
-        console.log('Map Render');
         let _self = this;
 
         let {myLatLng, lastSeenLocation} = props;
