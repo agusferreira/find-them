@@ -73,6 +73,7 @@ class Home extends Component {
         let {drizzle} = this.context;
         drizzle.contracts.FindRequestFactory.methods.getSummary().call()
             .then(contractSummary => {
+                console.log(contractSummary);
                 let contracts = parseInt(contractSummary[2], 10);
                 for (let i = 0; i < contracts; i++) {
                     drizzle.contracts.FindRequestFactory.methods

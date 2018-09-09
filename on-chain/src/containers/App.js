@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Home from './../containers/home/Home';
 import Details from './../containers/details/Details';
 import PageNotFound from "../components/errorPages/PageNotFound";
+import 'react-toastify/dist/ReactToastify.css';
 
 class App extends Component {
 

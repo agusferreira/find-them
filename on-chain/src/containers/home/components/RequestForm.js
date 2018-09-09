@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { drizzleConnect } from 'drizzle-react';
 
 import axios from 'axios';
-import Swal from 'sweetalert2';
+import { ToastContainer, toast } from 'react-toastify';
 import {Link, withRouter} from 'react-router-dom';
 import {GoogleMap, Marker} from 'react-google-maps';
 import {
@@ -15,6 +15,7 @@ import Datepicker from 'react-16-bootstrap-date-picker';
 import {BasicGoogleMap} from "../../../components/map/Map";
 import Button from "../../../components/button/Button";
 import urls from "../../../utils/urls";
+import loading from "../../../assets/loading.gif";
 
 class RequestForm extends Component{
 
@@ -73,7 +74,7 @@ class RequestForm extends Component{
 
         // Setting up a max for age
         if(prop === 'age' && value > 99) value = 99;
-        if(prop === 'incentive' && value <= 0) value = 0.01;
+        if(prop === 'incentive' && value < 0) value = 0;
 
         this.setState({[prop]: value});
     };
@@ -82,15 +83,37 @@ class RequestForm extends Component{
         this.setState({show: false});
     };
 
+    _notify = (text, type) => {
+        toast(text, {
+            position: "top-right",
+            autoClose: false,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            type
+        });
+    };
+
+     dismissAll = () =>  toast.dismiss();
+
     _submitForm = async (ev) => {
         ev.preventDefault();
 
-        // TO DO
+
         let {
             first_name, last_name, identifier, photo, email, description, age,
             lastSeenLocation, lastSeenDate, incentive
         } = this.state;
 
+        if(!incentive || incentive === 0){
+            let message = 'Please input an incentive to continue';
+            this._notify(message, toast.TYPE.ERROR);
+            return false;
+        }
+
+        this.setState({ajaxInProgress: true});
+        this.dismissAll();
 
         let {drizzle} = this.context;
         let state = drizzle.store.getState();
@@ -101,6 +124,13 @@ class RequestForm extends Component{
         let lastDate = `${lastSeenDate}`;
 
         if (drizzleStatus.initialized) {
+
+            let message = <p className={'text-center'}>
+                <img src={loading} className={'loading-icon'} />
+                Your request has been submitted. Please be patient while we share it accross the network.
+            </p>;
+            this._notify(message, toast.TYPE.INFO);
+            return false;
 
             const stackId = await drizzle.contracts.FindRequestFactory.methods.createFindRequest(
                     age,
@@ -154,7 +184,6 @@ class RequestForm extends Component{
         const URL = `${urls.API_ROOT}/api/v1/requests/`;
         axios.post(URL, form, {'Content-Type': 'multipart/form-data'})
             .then(response => {
-                console.log(response);
                 this.props.history.push(`/detail/${response.data.contract_deployed_address}/`);
             })
             .catch(e => {
@@ -359,11 +388,11 @@ class RequestForm extends Component{
                         <Row className={"modal-buttons"}>
                             <Col xs={12}>
                                 <Button className={`blue ${buttonsDisabled ? 'disabled' : ''}`}
-                                        onClick={this._handleClose}>
+                                        onClick={this._handleClose} disabled={buttonsDisabled}>
                                     Cancel
                                 </Button>
                                 <Button className={`blue-full ${buttonsDisabled ? 'disabled' : ''}`}
-                                        onClick={this._submitForm}>
+                                        onClick={this._submitForm} disabled={buttonsDisabled}>
                                     Submit
                                 </Button>
                             </Col>
@@ -403,6 +432,14 @@ class RequestForm extends Component{
                         {/*{this.state.ajaxInProgress ? <Spinner/> : <div><br/><br/></div>}*/}
                     </Modal.Body>
                 </Modal>
+                <ToastContainer
+                    position="top-right"
+                    autoClose={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnVisibilityChange
+                />
             </Grid>
         );
     }
